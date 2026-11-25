@@ -1,14 +1,13 @@
 {
 "name": "BENCHMARKING EMPRESAS - Agrícola Huarmey",
-"short_name": "Benchmarking AH",
-"description": "Registros de las competencias de cada empresas - Aplicación Offline-First para campo de Agrícola Huarmey",
+"short_name": "Benchmarking",
+"description": "Aplicación PWA de campo para registrar y comparar competencias, metas y tarifas por empresa y variedad.",
 "start_url": "./index.html",
 "scope": "./",
 "display": "standalone",
-"orientation": "portrait-primary",
+"orientation": "portrait",
 "background_color": "#F5F4F2",
-"theme_color": "#78BE20",
-"categories": ["business", "productivity"],
+"theme_color": "#DA291C",
 "icons": [
 {
 "src": "LOGO HUARMEY.png",
