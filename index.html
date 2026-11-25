@@ -199,9 +199,9 @@
 
           <!-- ASSOCIATED LOGO & LUGAR CARD -->
           <div class="bg-huarmey-grayLight rounded-2xl p-4 border border-gray-200 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <div class="sm:col-span-4 flex flex-col items-center justify-center bg-white rounded-xl p-3 border border-gray-200 min-h-[104px]">
-              <span class="text-[11px] font-bold uppercase text-huarmey-gray mb-1">LOGO ASOCIADO</span>
-              <img id="empresaLogoPreview" src="" alt="Logo Empresa" class="max-h-16 w-auto object-contain hidden" />
+            <div class="sm:col-span-4 flex flex-col items-center justify-center bg-white rounded-xl p-3 border border-gray-200 min-h-[112px] shadow-2xs">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-huarmey-gray mb-1.5">LOGO ASOCIADO</span>
+              <img id="empresaLogoPreview" src="" alt="Logo Empresa" class="max-h-16 w-auto max-w-full object-contain rounded-lg hidden" />
               <div id="empresaLogoPlaceholder" class="text-center text-gray-400 text-xs flex flex-col items-center px-1">
                 <i class="fa-regular fa-image text-2xl mb-1"></i>
                 <span id="empresaLogoText" class="leading-tight">Sin logo / Seleccione empresa</span>
@@ -453,7 +453,7 @@
         VARIEDADES: 'catalog_variedades',
         REGISTROS: 'registros'
       },
-      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz3IbotLi-lpDApD2ODl17Oxuhe2oX3n9SRhSSwgWbnsgmgBKnUk4niCH_ucq_xr8A_3w/exec',
+      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz5LdX3V7gTX3CmCAo1C_CkNCCH-kcX9jPWuqQUuAoudrOQ173a8Z0O2hpDHw1KiYIAcw/exec',
       STORAGE_KEYS: {
         SCRIPT_URL: 'huarmey_benchmarking_script_url',
         API_KEY: 'huarmey_benchmarking_api_key'
@@ -720,16 +720,46 @@
     }
 
     /**
+     * Genera un logotipo visual limpio en SVG Data URL con las iniciales y nombre de la empresa.
+     */
+    function buildCompanyLogoDataUrl(empresaNombre, lugarNombre) {
+      const cleanName = String(empresaNombre || 'EMPRESA').trim();
+      const cleanPlace = String(lugarNombre || '').trim();
+      const words = cleanName.split(/\s+/).filter(Boolean);
+      const initials = words.length >= 2
+        ? (words[0][0] + words[1][0]).toUpperCase()
+        : cleanName.substring(0, 3).toUpperCase();
+
+      const palette = ['#DA291C', '#2E8B19', '#1D4ED8', '#B45309', '#0F766E', '#7E22CE'];
+      let hash = 0;
+      for (let i = 0; i < cleanName.length; i++) {
+        hash = cleanName.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const accent = palette[Math.abs(hash) % palette.length];
+      const shortLabel = cleanName.length > 18 ? cleanName.substring(0, 17) + '…' : cleanName;
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="220" height="90" viewBox="0 0 220 90">
+          <rect x="2" y="2" width="216" height="86" rx="14" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+          <rect x="12" y="15" width="54" height="60" rx="12" fill="${accent}"/>
+          <text x="39" y="52" text-anchor="middle" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="20">${escapeHtml(initials)}</text>
+          <text x="76" y="42" fill="#2B2825" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="14">${escapeHtml(shortLabel)}</text>
+          <text x="76" y="62" fill="#78BE20" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="11">${escapeHtml(cleanPlace || 'BENCHMARK')}</text>
+        </svg>
+      `.trim();
+
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    /**
      * Convierte enlaces de Google Drive a URL directa de imagen si aplica.
      */
     function normalizeLogoSrc(rawLogo) {
       const val = (rawLogo || '').trim();
       if (!val || val === 'CELL_IMAGE_NO_URL' || val === 'CellImage') return '';
 
-      // Soporta data:image/...
       if (val.startsWith('data:image/')) return val;
 
-      // Soporta enlaces de Google Drive (/file/d/ID/view o ?id=ID)
       const driveFileMatch = val.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
       if (driveFileMatch && driveFileMatch[1]) {
         return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
@@ -739,7 +769,6 @@
         return `https://drive.google.com/uc?export=view&id=${driveIdMatch[1]}`;
       }
 
-      // Soporta URLs http/https o rutas relativas/locales
       if (
         val.startsWith('http://') ||
         val.startsWith('https://') ||
@@ -765,7 +794,6 @@
       const logoInput = document.getElementById('logoValue');
       const lugarInput = document.getElementById('lugarInput');
 
-      // Resetear onload/onerror previos
       logoPreview.onload = null;
       logoPreview.onerror = null;
 
@@ -782,36 +810,33 @@
       const empresaObj = cachedEmpresas.find(e => e.EMPRESA === selectedName);
       if (!empresaObj) return;
 
-      lugarInput.value = empresaObj.LUGAR || 'NO ESPECIFICADO';
+      const lugarExacto = empresaObj.LUGAR || 'NO ESPECIFICADO';
+      lugarInput.value = lugarExacto;
 
       const rawLogo = (empresaObj.LOGO || '').trim();
-      logoInput.value = rawLogo === 'CELL_IMAGE_NO_URL' ? '' : rawLogo;
+      const customSrc = normalizeLogoSrc(rawLogo);
+      const generatedFallbackSrc = buildCompanyLogoDataUrl(empresaObj.EMPRESA, lugarExacto);
 
-      if (rawLogo === 'CELL_IMAGE_NO_URL' || rawLogo === 'CellImage') {
-        logoPreview.src = '';
-        logoPreview.classList.add('hidden');
-        logoPlaceholder.classList.remove('hidden');
-        logoText.textContent = 'Usa URL o =IMAGE("URL") en hoja empresas';
-        return;
-      }
-
-      const imgSrc = normalizeLogoSrc(rawLogo);
-      if (imgSrc) {
+      if (customSrc) {
+        logoInput.value = customSrc;
         logoPreview.onload = () => {
           logoPreview.classList.remove('hidden');
           logoPlaceholder.classList.add('hidden');
         };
         logoPreview.onerror = () => {
-          logoPreview.classList.add('hidden');
-          logoPlaceholder.classList.remove('hidden');
-          logoText.textContent = 'No cargó la imagen (revisa URL)';
+          // Si la URL externa falla, mostrar el logo visual generado para no dejar vacío
+          logoInput.value = generatedFallbackSrc;
+          logoPreview.src = generatedFallbackSrc;
+          logoPreview.classList.remove('hidden');
+          logoPlaceholder.classList.add('hidden');
         };
-        logoPreview.src = imgSrc;
+        logoPreview.src = customSrc;
       } else {
-        logoPreview.src = '';
-        logoPreview.classList.add('hidden');
-        logoPlaceholder.classList.remove('hidden');
-        logoText.textContent = rawLogo || 'Sin logotipo registrado';
+        // Mostrar logotipo visual generado automáticamente para la empresa
+        logoInput.value = generatedFallbackSrc;
+        logoPreview.src = generatedFallbackSrc;
+        logoPreview.classList.remove('hidden');
+        logoPlaceholder.classList.add('hidden');
       }
     });
 
@@ -1119,15 +1144,22 @@
           badgeHtml = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-clock"></i> PENDIENTE</span>`;
         }
 
+        const logoThumb = rec.LOGO
+          ? `<img src="${escapeHtml(rec.LOGO)}" alt="Logo" class="h-9 w-16 object-contain rounded-lg border border-gray-200 bg-white p-0.5 shrink-0" />`
+          : '';
+
         const card = document.createElement('div');
         card.className = 'border border-gray-200 rounded-2xl p-4 bg-huarmey-grayLight/50 hover:bg-white transition space-y-2.5';
         card.innerHTML = `
           <div class="flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <div class="font-extrabold text-base text-huarmey-dark">${escapeHtml(rec.EMPRESA)}</div>
-              <div class="text-xs text-huarmey-gray font-medium">
-                <i class="fa-solid fa-location-dot text-huarmey-greenDark"></i> ${escapeHtml(rec.LUGAR)} &bull;
-                <i class="fa-regular fa-calendar"></i> ${escapeHtml(rec.FECHA_REG)}
+            <div class="flex items-center gap-2.5">
+              ${logoThumb}
+              <div>
+                <div class="font-extrabold text-base text-huarmey-dark">${escapeHtml(rec.EMPRESA)}</div>
+                <div class="text-xs text-huarmey-gray font-medium">
+                  <i class="fa-solid fa-location-dot text-huarmey-greenDark"></i> ${escapeHtml(rec.LUGAR)} &bull;
+                  <i class="fa-regular fa-calendar"></i> ${escapeHtml(rec.FECHA_REG)}
+                </div>
               </div>
             </div>
             ${badgeHtml}
