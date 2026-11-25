@@ -2,21 +2,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <meta name="theme-color" content="#78BE20" />
-  <meta name="description" content="Benchmarking Empresas - Registros de las competencias de cada empresa - Agrícola Huarmey" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#DA291C" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Benchmarking Huarmey" />
   <title>BENCHMARKING EMPRESAS | Agrícola Huarmey</title>
-
-  <!-- Manifiesto PWA (vinculado a manifest.json y respaldado dinámicamente vía Blob para instalación inmediata) -->
-  <link rel="manifest" href="manifest.json" id="pwa-manifest-link" />
-
-  <!-- Tipografía Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
   <script>
     tailwind.config = {
       theme: {
@@ -25,517 +26,1324 @@
             sans: ['Inter', 'sans-serif'],
           },
           colors: {
-            huarmeyRed: {
-              DEFAULT: '#DA291C',
-              light: '#FDECEB',
-              soft: '#F8D3D0',
-              dark: '#B21E13',
-            },
-            huarmeyGreen: {
-              DEFAULT: '#78BE20',
-              light: '#F1F9E8',
-              soft: '#E1F3CB',
-              dark: '#5C9615',
-            },
-            huarmeyGray: {
-              DEFAULT: '#8A8178',
-              light: '#F5F4F2',
-              dark: '#5E5750',
+            huarmey: {
+              red: '#DA291C',
+              redDark: '#B31F14',
+              green: '#78BE20',
+              greenDark: '#5E9816',
+              gray: '#8A8178',
+              grayLight: '#F5F4F2',
+              dark: '#2B2825'
             }
           }
         }
       }
-    };
+    }
   </script>
 
-  <!-- Lucide Icons para UI en campo -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F5F4F2;
+      color: #2B2825;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Custom scrollbar for smooth mobile feel */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8A8178;
+      border-radius: 9999px;
+    }
+    .tab-active {
+      border-bottom: 3px solid #DA291C;
+      color: #DA291C;
+      font-weight: 700;
+    }
+  </style>
 </head>
-<body class="bg-huarmeyGray-light text-stone-800 font-sans antialiased min-h-screen flex flex-col selection:bg-huarmeyGreen-soft selection:text-stone-900">
+<body class="min-h-screen flex flex-col">
 
-  <!-- =====================================================================
-       MEMBRETE SUPERIOR: LOGO AGRÍCOLA HUARMEY + TÍTULO + SUBTÍTULO + ESTADO RED
-       ===================================================================== -->
-  <header class="bg-white border-b-4 border-huarmeyGreen shadow-sm sticky top-0 z-30">
-    <div class="max-w-4xl mx-auto px-4 py-3 sm:py-4">
-      <!-- Barra superior de estado de red y configuración -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pb-2 mb-2 border-b border-stone-100">
-        <!-- Indicador Offline / Online en tiempo real -->
-        <div id="network-badge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-huarmeyGreen-light text-huarmeyGreen-dark border border-huarmeyGreen/30 transition-all">
-          <span id="network-dot" class="w-2.5 h-2.5 rounded-full bg-huarmeyGreen animate-pulse"></span>
-          <span id="network-text">En línea • Listo para sincronizar</span>
-        </div>
+  <!-- TOP STATUS BAR (ONLINE / OFFLINE & CONFIG) -->
+  <div id="networkBanner" class="bg-huarmey-green text-white text-xs sm:text-sm py-2 px-4 flex items-center justify-between shadow-sm transition-colors duration-300 sticky top-0 z-40">
+    <div class="flex items-center gap-2 font-semibold">
+      <span id="networkDot" class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+      <span id="networkText">CONECTADO (ONLINE)</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="openConfigModal()" class="bg-black/20 hover:bg-black/30 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition" title="Configurar URL de Google Apps Script">
+        <i class="fa-solid fa-gear"></i>
+        <span class="hidden sm:inline">Configurar API</span>
+      </button>
+    </div>
+  </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Botón instalar PWA (visible cuando el navegador lo permite) -->
-          <button id="btn-install-pwa" type="button" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-huarmeyGreen text-white hover:bg-huarmeyGreen-dark active:scale-95 transition shadow-sm">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            Instalar App
-          </button>
-
-          <!-- Botón de Configuración API / Token -->
-          <button id="btn-open-config" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 text-huarmeyGray-dark hover:bg-stone-200 active:scale-95 transition" title="Configurar URL de Google Apps Script y Token">
-            <i data-lucide="settings" class="w-4 h-4 text-huarmeyGray"></i>
-            <span class="hidden sm:inline">API / Catálogos</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Membrete Oficial Agrícola Huarmey (Recreación vectorial fiel de LOGO HUARMEY.png) -->
-      <div class="flex flex-col items-center text-center">
-        <div class="flex flex-col items-center justify-center mb-2 select-none" aria-label="Agrícola Huarmey">
-          <!-- Logotipo Vectorial Exacto: Manzana estilizada roja (#DA291C) + arcos y hoja verde (#78BE20) + tipografía gris (#8A8178) -->
-          <svg class="h-20 sm:h-24 w-auto drop-shadow-xs" viewBox="0 0 320 225" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoTitle">
-            <title id="logoTitle">Logo Agrícola Huarmey</title>
-            <!-- Hoja superior verde (#78BE20) -->
-            <path d="M167 74C169 40 198 16 238 16C240 53 213 76 177 77C188 61 205 46 223 35C203 43 185 57 167 74Z" fill="#78BE20"/>
-            <!-- Arcos orbitales izquierdos verdes (#78BE20) -->
-            <path d="M119 42C94 58 96 93 128 112C153 127 184 130 205 126C177 126 146 117 125 101C104 85 103 58 119 42Z" fill="#78BE20"/>
-            <path d="M97 79C79 102 88 138 122 155C148 168 179 170 199 166C172 166 143 158 122 143C99 127 91 99 97 79Z" fill="#78BE20"/>
-            <path d="M165 61C124 72 104 114 119 152C129 178 153 196 181 201C156 191 136 172 128 147C117 112 134 75 165 61Z" fill="#78BE20"/>
-            <!-- Franja superior roja (#DA291C) -->
-            <path d="M148 79C147 96 172 108 201 104C224 101 239 87 235 72C231 63 221 57 210 56C218 65 215 79 198 86C180 93 158 89 148 79Z" fill="#DA291C"/>
-            <!-- Franja media roja (#DA291C) -->
-            <path d="M132 114C133 136 168 148 206 141C236 135 256 116 254 95C253 86 248 79 242 74C247 89 235 108 208 116C179 125 147 123 132 114Z" fill="#DA291C"/>
-            <!-- Franja inferior roja (#DA291C) -->
-            <path d="M148 156C158 176 192 184 223 172C246 163 259 144 256 126C254 119 250 113 245 109C249 123 237 141 213 151C189 161 163 162 148 156Z" fill="#DA291C"/>
-            <!-- Texto institucional Agrícola Huarmey (#8A8178) -->
-            <text x="160" y="218" text-anchor="middle" fill="#8A8178" font-family="Inter, Arial, sans-serif" font-weight="600" font-size="31" letter-spacing="-0.5">Agrícola Huarmey</text>
+  <!-- INSTITUTIONAL HEADER -->
+  <header class="bg-white border-b border-gray-200 shadow-sm pt-4 pb-5 px-4">
+    <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
+      <!-- Membrete Agrícola Huarmey: Usa LOGO HUARMEY.png si está en la misma carpeta, con fallback SVG vectorial institucional idéntico -->
+      <div class="mb-3 flex justify-center items-center">
+        <img 
+          id="headerLogo" 
+          src="LOGO HUARMEY.png" 
+          alt="Agrícola Huarmey" 
+          class="h-20 sm:h-24 w-auto object-contain"
+          onerror="this.style.display='none'; document.getElementById('fallbackLogoSvg').style.display='flex';"
+        />
+        <!-- Fallback fiel al logotipo de Agrícola Huarmey si el archivo local aún no se ha copiado junto al HTML -->
+        <div id="fallbackLogoSvg" style="display:none;" class="flex-col items-center">
+          <svg width="150" height="86" viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Agrícola Huarmey">
+            <!-- Hoja verde superior -->
+            <path d="M112 36C112 18 128 8 144 8C144 24 130 36 112 36Z" fill="#2E8B19"/>
+            <path d="M114 34C122 24 131 17 141 11" stroke="#78BE20" stroke-width="2" stroke-linecap="round"/>
+            <!-- Arcos verdes izquierdos (globo/fruto) -->
+            <path d="M98 34C74 42 62 66 68 92C72 106 82 116 95 121" stroke="#2E8B19" stroke-width="5.5" stroke-linecap="round"/>
+            <path d="M84 26C62 42 54 70 64 96C70 110 80 118 92 122" stroke="#4CA626" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M68 48C56 64 56 88 70 105" stroke="#2E8B19" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- Franjas rojas curvas del fruto -->
+            <path d="M96 42C112 52 134 50 146 38C144 54 124 62 102 54C96 51 94 46 96 42Z" fill="#DA291C"/>
+            <path d="M86 60C108 72 138 68 152 54C150 74 122 84 94 74C86 71 83 65 86 60Z" fill="#DA291C"/>
+            <path d="M88 80C110 92 138 88 150 75C146 94 120 104 94 94C87 91 85 85 88 80Z" fill="#DA291C"/>
+            <path d="M96 100C114 108 134 105 143 96C138 110 118 116 100 109C95 107 94 103 96 100Z" fill="#DA291C"/>
+            <!-- Texto institucional -->
+            <text x="110" y="127" text-anchor="middle" fill="#635B54" font-family="Inter, sans-serif" font-weight="700" font-size="21" letter-spacing="-0.5">Agrícola Huarmey</text>
           </svg>
         </div>
-
-        <!-- Título centrado y en negrita -->
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
-          BENCHMARKING EMPRESAS
-        </h1>
-        <!-- Subtítulo de la aplicación -->
-        <p class="text-sm sm:text-base font-medium text-huarmeyGray mt-0.5">
-          Registros de las competencias de cada empresas
-        </p>
       </div>
+
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-huarmey-dark uppercase">
+        BENCHMARKING EMPRESAS
+      </h1>
+      <p class="text-sm sm:text-base text-huarmey-gray font-medium mt-1">
+        Registros de las competencias de cada empresa
+      </p>
     </div>
   </header>
 
-  <!-- =====================================================================
-       NAVEGACIÓN PRINCIPAL MOBILE-FIRST (TABS GRANDES PARA USO EN CAMPO)
-       ===================================================================== -->
-  <nav class="max-w-4xl w-full mx-auto px-4 pt-4">
-    <div class="grid grid-cols-2 gap-3 bg-white p-2 rounded-2xl shadow-sm border border-stone-200">
-      <button id="tab-form" type="button" onclick="switchTab('form')"
-        class="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base transition-all bg-huarmeyGreen text-white shadow-sm">
-        <i data-lucide="clipboard-edit" class="w-5 h-5"></i>
+  <!-- SYNC SUMMARY WIDGET -->
+  <section class="max-w-3xl w-full mx-auto px-4 mt-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="grid grid-cols-3 gap-2 w-full sm:w-auto text-center">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+          <div id="countPendiente" class="text-lg sm:text-xl font-extrabold text-amber-600">0</div>
+          <div class="text-[11px] font-semibold text-amber-800 uppercase">Pendientes</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+          <div id="countSincronizado" class="text-lg sm:text-xl font-extrabold text-huarmey-greenDark">0</div>
+          <div class="text-[11px] font-semibold text-emerald-800 uppercase">Sincronizados</div>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+          <div id="countError" class="text-lg sm:text-xl font-extrabold text-huarmey-red">0</div>
+          <div class="text-[11px] font-semibold text-red-800 uppercase">Con Error</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <button id="btnRefreshCatalogs" onclick="syncCatalogsFromServer(true)" class="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 text-huarmey-dark font-semibold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl transition flex items-center justify-center gap-2" title="Actualizar listas de empresas y variedades">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Catálogos</span>
+        </button>
+        <button id="btnSyncNow" onclick="syncPendingRecords(true)" class="flex-1 sm:flex-initial bg-huarmey-green hover:bg-huarmey-greenDark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+          <i id="syncIcon" class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Sincronizar</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="max-w-3xl w-full mx-auto px-4 mt-4">
+    <div class="bg-white rounded-t-2xl border-b border-gray-200 flex">
+      <button id="tabFormBtn" onclick="switchTab('form')" class="flex-1 py-3.5 px-4 text-sm sm:text-base font-semibold text-center tab-active transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i>
         <span>Nuevo Registro</span>
       </button>
-
-      <button id="tab-records" type="button" onclick="switchTab('records')"
-        class="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base transition-all bg-huarmeyGray-light text-huarmeyGray-dark hover:bg-stone-200 relative">
-        <i data-lucide="database" class="w-5 h-5"></i>
-        <span>Registros Locales</span>
-        <span id="badge-pending-count" class="ml-1 px-2 py-0.5 text-xs font-extrabold rounded-full bg-huarmeyRed text-white">0</span>
+      <button id="tabListBtn" onclick="switchTab('list')" class="flex-1 py-3.5 px-4 text-sm sm:text-base font-semibold text-huarmey-gray hover:text-huarmey-dark text-center transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Ver Registros</span>
+        <span id="badgeTotalList" class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
       </button>
     </div>
   </nav>
 
-  <!-- =====================================================================
-       CONTENEDOR PRINCIPAL
-       ===================================================================== -->
-  <main class="max-w-4xl w-full mx-auto px-4 py-5 flex-1">
+  <!-- MAIN CONTENT AREA -->
+  <main class="max-w-3xl w-full mx-auto px-4 pb-12 flex-1">
 
-    <!-- Alerta / Banner Dinámico de Mensajes (Reemplaza alert() nativo) -->
-    <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- VIEW 1: REGISTRATION FORM -->
+    <div id="viewForm" class="bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-200 p-4 sm:p-6">
+      <form id="benchmarkForm" novalidate class="space-y-6">
 
-    <!-- ===================================================================
-         VISTA 1: FORMULARIO DE REGISTRO BENCHMARKING
-         =================================================================== -->
-    <section id="view-form" class="space-y-5">
-      <!-- Barra rápida de catálogos desde Google Sheets -->
-      <div class="bg-huarmeyGreen-light border border-huarmeyGreen/40 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700">
-          <i data-lucide="file-spreadsheet" class="w-5 h-5 text-huarmeyGreen-dark shrink-0"></i>
-          <div>
-            <p class="font-semibold text-stone-900">Catálogos Google Sheets: <span class="font-normal">BENCHMARKING EMPRESAS</span></p>
-            <p id="catalog-status" class="text-xs text-huarmeyGray-dark">Cargando listas de hojas "empresas" y "variedad"...</p>
-          </div>
-        </div>
-        <button id="btn-refresh-catalogs" type="button" onclick="fetchCatalogsFromSheets(true)"
-          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-huarmeyGreen-dark border border-huarmeyGreen/50 hover:bg-huarmeyGreen hover:text-white active:scale-95 transition shadow-xs">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icon-refresh-cat"></i>
-          Actualizar Listas
-        </button>
-      </div>
-
-      <form id="benchmarking-form" novalidate class="bg-white rounded-3xl shadow-sm border border-stone-200 p-5 sm:p-7 space-y-6">
-
-        <!-- BLOQUE 1: IDENTIFICACIÓN DE EMPRESA Y FECHA -->
+        <!-- SECTION 1: EMPRESA Y UBICACIÓN -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 border-b border-stone-100 pb-2">
-            <span class="w-2.5 h-6 rounded-full bg-huarmeyRed"></span>
-            <h2 class="text-base sm:text-lg font-bold text-stone-800">1. Datos de la Empresa Competidora</h2>
+          <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+            <span class="w-7 h-7 rounded-lg bg-red-50 text-huarmey-red flex items-center justify-center text-sm font-bold">1</span>
+            <h2 class="font-bold text-base sm:text-lg text-huarmey-dark">Datos Generales y Empresa</h2>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- FECHA REG. -->
             <div>
-              <label for="fecha_reg" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                FECHA REG. <span class="text-huarmeyRed">*</span>
+              <label for="fechaReg" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-regular fa-calendar text-huarmey-red mr-1"></i> FECHA REG. <span class="text-huarmey-red">*</span>
               </label>
-              <div class="relative">
-                <input type="date" id="fecha_reg" name="fecha_reg" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
-              </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-fecha_reg"></p>
+              <input type="date" id="fechaReg" name="fechaReg" required
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red focus:border-transparent bg-white" />
+              <p class="text-xs text-huarmey-gray mt-1">Fecha operativa a la que corresponde el dato.</p>
             </div>
 
-            <!-- EMPRESA (Lista desplegable desde Excel/Google Sheets -> Hoja: empresas -> Campo: EMPRESA) -->
+            <!-- EMPRESA -->
             <div>
-              <label for="empresa" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                EMPRESA <span class="text-huarmeyRed">*</span>
+              <label for="empresaSelect" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-building text-huarmey-red mr-1"></i> EMPRESA <span class="text-huarmey-red">*</span>
               </label>
-              <select id="empresa" name="empresa" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition">
-                <option value="">Seleccione Empresa...</option>
+              <select id="empresaSelect" name="empresaSelect" required
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red focus:border-transparent bg-white">
+                <option value="">-- Seleccione una empresa --</option>
               </select>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-empresa"></p>
+              <p id="catalogStatusHint" class="text-xs text-huarmey-gray mt-1">Cargando catálogo de empresas...</p>
             </div>
+          </div>
 
-            <!-- LOGO (Lista desplegable desde Excel/Google Sheets -> Hoja: empresas -> Campo: LOGO) -->
-            <div>
-              <label for="logo" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                LOGO <span class="text-huarmeyRed">*</span>
-              </label>
-              <div class="flex items-center gap-2">
-                <select id="logo" name="logo" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition">
-                  <option value="">Seleccione Logo...</option>
-                </select>
-                <!-- Vista previa miniatura del logo seleccionado si es URL o texto -->
-                <div id="logo-preview-box" class="w-12 h-12 rounded-xl border border-stone-200 bg-stone-50 flex items-center justify-center shrink-0 overflow-hidden text-xs font-bold text-huarmeyGray">
-                  <i data-lucide="image" class="w-5 h-5"></i>
-                </div>
+          <!-- ASSOCIATED LOGO & LUGAR CARD -->
+          <div class="bg-huarmey-grayLight rounded-2xl p-4 border border-gray-200 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+            <!-- LOGO -->
+            <div class="sm:col-span-4 flex flex-col items-center justify-center bg-white rounded-xl p-3 border border-gray-200 min-h-[96px]">
+              <span class="text-[11px] font-bold uppercase text-huarmey-gray mb-1">LOGO ASOCIADO</span>
+              <img id="empresaLogoPreview" src="" alt="Logo Empresa" class="max-h-14 w-auto object-contain hidden"
+                onerror="this.classList.add('hidden'); document.getElementById('empresaLogoPlaceholder').classList.remove('hidden');" />
+              <div id="empresaLogoPlaceholder" class="text-center text-gray-400 text-xs flex flex-col items-center">
+                <i class="fa-regular fa-image text-2xl mb-1"></i>
+                <span id="empresaLogoText">Sin logo / Seleccione empresa</span>
               </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-logo"></p>
+              <input type="hidden" id="logoValue" name="logoValue" />
             </div>
 
-            <!-- LUGAR (Lista desplegable desde Excel/Google Sheets -> Hoja: empresas -> Campo: LUGAR) -->
-            <div>
-              <label for="lugar" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                LUGAR <span class="text-huarmeyRed">*</span>
+            <!-- LUGAR -->
+            <div class="sm:col-span-8">
+              <label for="lugarInput" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-location-dot text-huarmey-greenDark mr-1"></i> LUGAR (Automático según Empresa) <span class="text-huarmey-red">*</span>
               </label>
-              <select id="lugar" name="lugar" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition">
-                <option value="">Seleccione Lugar...</option>
-              </select>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-lugar"></p>
+              <input type="text" id="lugarInput" name="lugarInput" readonly required
+                placeholder="Se completará al elegir la empresa"
+                class="w-full rounded-xl border border-gray-300 bg-gray-100 text-gray-700 font-semibold px-3.5 py-3 text-base cursor-not-allowed focus:outline-none" />
+              <p class="text-xs text-huarmey-gray mt-1">
+                <i class="fa-solid fa-lock text-[10px]"></i> Vinculado automáticamente a la fila de la empresa para evitar inconsistencias.
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- BLOQUE 2: PRODUCCIÓN, META Y VARIEDAD -->
+        <!-- SECTION 2: PRODUCCIÓN, METAS Y TIEMPOS -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 border-b border-stone-100 pb-2">
-            <span class="w-2.5 h-6 rounded-full bg-huarmeyGreen"></span>
-            <h2 class="text-base sm:text-lg font-bold text-stone-800">2. Meta, Variedad y Jornada</h2>
+          <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+            <span class="w-7 h-7 rounded-lg bg-green-50 text-huarmey-greenDark flex items-center justify-center text-sm font-bold">2</span>
+            <h2 class="font-bold text-base sm:text-lg text-huarmey-dark">Variedad, Metas y Jornada</h2>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- VARIEDAD (Lista desplegable desde Google Sheets -> Hoja: variedad -> Campo: VARIEDAD) -->
-            <div class="sm:col-span-2 lg:col-span-1">
-              <label for="variedad" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                VARIEDAD <span class="text-huarmeyRed">*</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- VARIEDAD -->
+            <div class="sm:col-span-2">
+              <label for="variedadSelect" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-seedling text-huarmey-greenDark mr-1"></i> VARIEDAD <span class="text-huarmey-red">*</span>
               </label>
-              <select id="variedad" name="variedad" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition">
-                <option value="">Seleccione Variedad...</option>
+              <select id="variedadSelect" name="variedadSelect" required
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-green focus:border-transparent bg-white">
+                <option value="">-- Seleccione una variedad --</option>
               </select>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-variedad"></p>
             </div>
 
-            <!-- META O TAREA (Dato numérico entero) -->
+            <!-- META O TAREA -->
             <div>
-              <label for="meta_tarea" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                META O TAREA <span class="text-huarmeyRed">*</span>
+              <label for="metaTarea" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-bullseye text-huarmey-red mr-1"></i> META O TAREA <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="meta_tarea" name="meta_tarea" inputmode="numeric" step="1" min="1" placeholder="Ej. 45" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-semibold text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-meta_tarea"></p>
+              <input type="number" id="metaTarea" name="metaTarea" inputmode="numeric" min="1" step="1" required
+                placeholder="Ej. 120"
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
+              <p class="text-xs text-huarmey-gray mt-1">Solo números enteros positivos.</p>
             </div>
 
-            <!-- TIPO META (Lista fija: Kilos, Jabas, Jarras, Potes) -->
+            <!-- TIPO META -->
             <div>
-              <label for="tipo_meta" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                TIPO META <span class="text-huarmeyRed">*</span>
+              <label for="tipoMeta" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-boxes-stacked text-huarmey-red mr-1"></i> TIPO META <span class="text-huarmey-red">*</span>
               </label>
-              <select id="tipo_meta" name="tipo_meta" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-medium text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition">
-                <option value="">Seleccione Tipo...</option>
+              <select id="tipoMeta" name="tipoMeta" required
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white">
+                <option value="">-- Seleccione unidad --</option>
                 <option value="Kilos">Kilos</option>
                 <option value="Jabas">Jabas</option>
                 <option value="Jarras">Jarras</option>
                 <option value="Potes">Potes</option>
               </select>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-tipo_meta"></p>
             </div>
 
-            <!-- HRS. TRABAJADADAS (Dato numérico entero) -->
+            <!-- HRS. TRABAJADAS -->
             <div>
-              <label for="hrs_trabajadas" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                HRS. TRABAJADADAS <span class="text-huarmeyRed">*</span>
+              <label for="hrsTrabajadas" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-regular fa-clock text-huarmey-gray mr-1"></i> HRS. TRABAJADAS <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="hrs_trabajadas" name="hrs_trabajadas" inputmode="numeric" step="1" min="1" max="24" placeholder="Ej. 8" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-semibold text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-hrs_trabajadas"></p>
+              <input type="number" id="hrsTrabajadas" name="hrsTrabajadas" inputmode="numeric" min="1" max="24" step="1" required
+                placeholder="Ej. 8"
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
+              <p class="text-xs text-huarmey-gray mt-1">Horas enteras positivas (1 a 24).</p>
             </div>
 
-            <!-- DIAS TRABAJADOS (Dato numérico entero) -->
+            <!-- DÍAS TRABAJADOS -->
             <div>
-              <label for="dias_trabajados" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                DIAS TRABAJADOS <span class="text-huarmeyRed">*</span>
+              <label for="diasTrabajados" class="block text-sm font-bold text-gray-700 mb-1">
+                <i class="fa-solid fa-calendar-days text-huarmey-gray mr-1"></i> DÍAS TRABAJADOS <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="dias_trabajados" name="dias_trabajados" inputmode="numeric" step="1" min="1" max="31" placeholder="Ej. 6" required
-                class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGray-light/50 px-4 py-3 text-base font-semibold text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-dias_trabajados"></p>
+              <input type="number" id="diasTrabajados" name="diasTrabajados" inputmode="numeric" min="1" max="31" step="1" required
+                placeholder="Ej. 6"
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
+              <p class="text-xs text-huarmey-gray mt-1">Días enteros positivos (1 a 31).</p>
             </div>
           </div>
         </div>
 
-        <!-- BLOQUE 3: TARIFAS Y BONOS EN SOLES (S/) -->
+        <!-- SECTION 3: TARIFAS Y BONOS (SOLES PERUANOS) -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 border-b border-stone-100 pb-2">
-            <span class="w-2.5 h-6 rounded-full bg-huarmeyRed"></span>
-            <h2 class="text-base sm:text-lg font-bold text-stone-800">3. Tarifas y Bonificaciones (Soles S/)</h2>
+          <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+            <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-sm font-bold">3</span>
+            <h2 class="font-bold text-base sm:text-lg text-huarmey-dark">Tarifas y Bonos (S/ PEN)</h2>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- PRECIO POR META -->
             <div>
-              <label for="precio_meta" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                PRECIO POR META (S/) <span class="text-huarmeyRed">*</span>
+              <label for="precioMeta" class="block text-sm font-bold text-gray-700 mb-1">
+                PRECIO POR META <span class="text-huarmey-red">*</span>
               </label>
-              <div class="relative flex items-center">
-                <span class="absolute left-3.5 text-sm font-bold text-huarmeyGreen-dark">S/</span>
-                <input type="number" id="precio_meta" name="precio_meta" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGreen-light/30 pl-10 pr-4 py-3 text-base font-bold text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 font-bold">S/</span>
+                <input type="number" id="precioMeta" name="precioMeta" inputmode="decimal" min="0" step="0.01" required
+                  placeholder="0.00"
+                  class="currency-input w-full rounded-xl border border-gray-300 pl-10 pr-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-green bg-white" />
               </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-precio_meta"></p>
             </div>
 
             <!-- PRECIO ADICIONAL -->
             <div>
-              <label for="precio_adicional" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                PRECIO ADICIONAL (S/) <span class="text-huarmeyRed">*</span>
+              <label for="precioAdicional" class="block text-sm font-bold text-gray-700 mb-1">
+                PRECIO ADICIONAL <span class="text-huarmey-red">*</span>
               </label>
-              <div class="relative flex items-center">
-                <span class="absolute left-3.5 text-sm font-bold text-huarmeyGreen-dark">S/</span>
-                <input type="number" id="precio_adicional" name="precio_adicional" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyGreen-light/30 pl-10 pr-4 py-3 text-base font-bold text-stone-900 focus:border-huarmeyGreen focus:bg-white focus:outline-none transition" />
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 font-bold">S/</span>
+                <input type="number" id="precioAdicional" name="precioAdicional" inputmode="decimal" min="0" step="0.01" required
+                  placeholder="0.00"
+                  class="currency-input w-full rounded-xl border border-gray-300 pl-10 pr-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-green bg-white" />
               </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-precio_adicional"></p>
             </div>
 
             <!-- BONO ASISTENCIA -->
             <div>
-              <label for="bono_asistencia" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                BONO ASISTENCIA (S/) <span class="text-huarmeyRed">*</span>
+              <label for="bonoAsistencia" class="block text-sm font-bold text-gray-700 mb-1">
+                BONO ASISTENCIA <span class="text-huarmey-red">*</span>
               </label>
-              <div class="relative flex items-center">
-                <span class="absolute left-3.5 text-sm font-bold text-huarmeyRed">S/</span>
-                <input type="number" id="bono_asistencia" name="bono_asistencia" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyRed-light/30 pl-10 pr-4 py-3 text-base font-bold text-stone-900 focus:border-huarmeyRed focus:bg-white focus:outline-none transition" />
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 font-bold">S/</span>
+                <input type="number" id="bonoAsistencia" name="bonoAsistencia" inputmode="decimal" min="0" step="0.01" required
+                  placeholder="0.00"
+                  class="currency-input w-full rounded-xl border border-gray-300 pl-10 pr-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-green bg-white" />
               </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-bono_asistencia"></p>
             </div>
 
             <!-- BONO CALIDAD -->
             <div>
-              <label for="bono_calidad" class="block text-xs font-bold uppercase tracking-wider text-huarmeyGray-dark mb-1.5">
-                BONO CALIDAD (S/) <span class="text-huarmeyRed">*</span>
+              <label for="bonoCalidad" class="block text-sm font-bold text-gray-700 mb-1">
+                BONO CALIDAD <span class="text-huarmey-red">*</span>
               </label>
-              <div class="relative flex items-center">
-                <span class="absolute left-3.5 text-sm font-bold text-huarmeyRed">S/</span>
-                <input type="number" id="bono_calidad" name="bono_calidad" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required
-                  class="w-full rounded-xl border-2 border-stone-200 bg-huarmeyRed-light/30 pl-10 pr-4 py-3 text-base font-bold text-stone-900 focus:border-huarmeyRed focus:bg-white focus:outline-none transition" />
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 font-bold">S/</span>
+                <input type="number" id="bonoCalidad" name="bonoCalidad" inputmode="decimal" min="0" step="0.01" required
+                  placeholder="0.00"
+                  class="currency-input w-full rounded-xl border border-gray-300 pl-10 pr-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-green bg-white" />
               </div>
-              <p class="error-msg hidden text-xs font-semibold text-huarmeyRed mt-1" id="err-bono_calidad"></p>
             </div>
           </div>
         </div>
 
-        <!-- BOTONES DE ACCIÓN GRANDES PARA CAMPO -->
-        <div class="pt-3 flex flex-col sm:flex-row gap-3">
-          <button type="submit" id="btn-submit-record"
-            class="flex-1 inline-flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-huarmeyGreen hover:bg-huarmeyGreen-dark text-white font-extrabold text-base sm:text-lg shadow-md active:scale-[0.99] transition">
-            <i data-lucide="save" class="w-6 h-6"></i>
-            <span>GUARDAR REGISTRO</span>
+        <!-- FORM ACTIONS -->
+        <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+          <button type="submit" id="btnGuardar" class="flex-1 bg-huarmey-red hover:bg-huarmey-redDark text-white font-bold text-base py-4 px-6 rounded-2xl shadow-md transition flex items-center justify-center gap-2.5 active:scale-[0.99]">
+            <i class="fa-solid fa-floppy-disk text-lg"></i>
+            <span>Guardar Registro</span>
           </button>
-
-          <button type="button" onclick="resetForm()"
-            class="sm:w-auto inline-flex items-center justify-center gap-2 py-4 px-5 rounded-2xl bg-huarmeyRed-light hover:bg-huarmeyRed-soft text-huarmeyRed font-bold text-base transition">
-            <i data-lucide="eraser" class="w-5 h-5"></i>
+          <button type="button" onclick="resetFormWithConfirmation()" class="sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-base py-4 px-5 rounded-2xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-eraser"></i>
             <span>Limpiar</span>
           </button>
         </div>
+
       </form>
-    </section>
+    </div>
 
-    <!-- ===================================================================
-         VISTA 2: REGISTROS LOCALES (INDEXEDDB) Y SINCRONIZACIÓN
-         =================================================================== -->
-    <section id="view-records" class="hidden space-y-5">
-      <!-- Tarjetas Resumen de Estados -->
-      <div class="grid grid-cols-3 gap-2.5 sm:gap-4">
-        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border-l-4 border-amber-500 shadow-xs">
-          <p class="text-xs font-bold uppercase text-huarmeyGray">Pendientes</p>
-          <p id="stat-pendiente" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</p>
-        </div>
-        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border-l-4 border-huarmeyGreen shadow-xs">
-          <p class="text-xs font-bold uppercase text-huarmeyGray">Sincronizados</p>
-          <p id="stat-sincronizado" class="text-2xl sm:text-3xl font-extrabold text-huarmeyGreen-dark mt-1">0</p>
-        </div>
-        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border-l-4 border-huarmeyRed shadow-xs">
-          <p class="text-xs font-bold uppercase text-huarmeyGray">Con Error</p>
-          <p id="stat-error" class="text-2xl sm:text-3xl font-extrabold text-huarmeyRed mt-1">0</p>
-        </div>
-      </div>
-
-      <!-- Barra de Sincronización Manual -->
-      <div class="bg-white rounded-2xl p-4 border border-stone-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+    <!-- VIEW 2: RECORDS LIST & COMPARISON -->
+    <div id="viewList" class="hidden bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-200 p-4 sm:p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
         <div>
-          <h3 class="font-bold text-stone-900 text-base">Cola de Sincronización Offline-First</h3>
-          <p class="text-xs text-huarmeyGray-dark">Los registros pendientes se envían automáticamente al detectar internet.</p>
+          <h2 class="font-bold text-lg text-huarmey-dark">Historial Local y Estado de Envío</h2>
+          <p class="text-xs text-huarmey-gray">Los registros pendientes se envían automáticamente al detectar internet.</p>
         </div>
-        <button id="btn-sync-now" type="button" onclick="syncPendingRecords()"
-          class="inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-huarmeyRed hover:bg-huarmeyRed-dark text-white font-bold text-sm shadow-sm active:scale-95 transition">
-          <i data-lucide="cloud-upload" class="w-5 h-5" id="icon-sync-now"></i>
-          <span>Sincronizar Pendientes Ahora</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <select id="filterStatus" onchange="renderRecordsList()" class="rounded-xl border border-gray-300 px-3 py-2 text-xs sm:text-sm font-semibold bg-white">
+            <option value="ALL">Todos los estados</option>
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="SINCRONIZADO">Sincronizados</option>
+            <option value="ERROR">Con Error</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Lista de Registros Almacenados en IndexedDB -->
-      <div id="records-list" class="space-y-3">
-        <!-- Renderizado dinámico -->
+      <!-- Empty state -->
+      <div id="emptyListState" class="text-center py-10 text-huarmey-gray hidden">
+        <i class="fa-regular fa-folder-open text-4xl mb-2 opacity-50"></i>
+        <p class="font-semibold">No hay registros almacenados en este dispositivo.</p>
+        <p class="text-xs mt-1">Completa el formulario en la pestaña "Nuevo Registro".</p>
       </div>
-    </section>
+
+      <!-- Cards container -->
+      <div id="recordsContainer" class="space-y-3"></div>
+    </div>
 
   </main>
 
-  <!-- =====================================================================
-       MODAL DE CONFIGURACIÓN GOOGLE APPS SCRIPT + TOKEN + IDENTIFICADOR USUARIO
-       ===================================================================== -->
-  <div id="config-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-stone-100 pb-3">
-        <div class="flex items-center gap-2">
-          <i data-lucide="server" class="w-5 h-5 text-huarmeyGreen-dark"></i>
-          <h3 class="text-lg font-extrabold text-stone-900">Conexión Google Sheets API</h3>
-        </div>
-        <button type="button" onclick="closeConfigModal()" class="p-2 rounded-xl hover:bg-stone-100 text-huarmeyGray">
-          <i data-lucide="x" class="w-5 h-5"></i>
+  <!-- TOAST NOTIFICATION CONTAINER (NO alert() USED) -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- MODAL: CONFIGURATION (APPS SCRIPT URL) -->
+  <div id="configModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h3 class="font-extrabold text-lg text-huarmey-dark flex items-center gap-2">
+          <i class="fa-solid fa-server text-huarmey-red"></i>
+          Conexión Google Apps Script
+        </h3>
+        <button onclick="closeConfigModal()" class="text-gray-400 hover:text-gray-700 p-1">
+          <i class="fa-solid fa-xmark text-xl"></i>
         </button>
       </div>
 
-      <div class="space-y-4 text-sm">
+      <div class="space-y-3 text-sm">
+        <p class="text-gray-600">
+          Ingresa la URL de implementación de tu Web App de Google Apps Script conectada al archivo <strong>BENCHMARKING EMPRESAS</strong>.
+        </p>
         <div>
-          <label for="cfg-api-url" class="block text-xs font-bold uppercase text-huarmeyGray-dark mb-1">
-            URL Web App de Google Apps Script
-          </label>
-          <input type="url" id="cfg-api-url" placeholder="https://script.google.com/macros/s/.../exec"
-            class="w-full rounded-xl border-2 border-stone-200 px-3.5 py-2.5 text-sm focus:border-huarmeyGreen focus:outline-none" />
-          <p class="text-xs text-huarmeyGray mt-1">Pega aquí la URL generada al implementar <code>código.gs</code> como Aplicación Web.</p>
+          <label for="scriptUrlInput" class="block font-bold text-gray-700 mb-1">URL del Web App (Apps Script) <span class="text-huarmey-red">*</span></label>
+          <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+            class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-huarmey-red" />
         </div>
-
         <div>
-          <label for="cfg-api-token" class="block text-xs font-bold uppercase text-huarmeyGray-dark mb-1">
-            Token de Seguridad (API Key)
-          </label>
-          <input type="password" id="cfg-api-token" placeholder="HUARMEY_BENCH_2026_SECRET"
-            class="w-full rounded-xl border-2 border-stone-200 px-3.5 py-2.5 text-sm focus:border-huarmeyGreen focus:outline-none" />
-        </div>
-
-        <div>
-          <label for="cfg-user-device" class="block text-xs font-bold uppercase text-huarmeyGray-dark mb-1">
-            Identificador de Evaluador / Equipo (Concurrencia 20 usuarios)
-          </label>
-          <input type="text" id="cfg-user-device" placeholder="Ej. Evaluador Campo 01"
-            class="w-full rounded-xl border-2 border-stone-200 px-3.5 py-2.5 text-sm focus:border-huarmeyGreen focus:outline-none" />
+          <label for="apiKeyInput" class="block font-bold text-gray-700 mb-1">Clave de Acceso Operativo (Opcional)</label>
+          <input type="password" id="apiKeyInput" placeholder="Token configurado en Propiedades del Script"
+            class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-huarmey-red" />
+          <p class="text-xs text-huarmey-gray mt-1">Se guarda solo localmente en el navegador del dispositivo de campo.</p>
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
-        <button type="button" onclick="saveApiConfig()"
-          class="flex-1 py-3 px-4 rounded-xl bg-huarmeyGreen hover:bg-huarmeyGreen-dark text-white font-bold text-sm transition">
-          Guardar Configuración
-        </button>
-        <button type="button" onclick="closeConfigModal()"
-          class="py-3 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
+      <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+        <button onclick="closeConfigModal()" class="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm">
           Cancelar
+        </button>
+        <button onclick="saveApiConfig()" class="px-5 py-2.5 rounded-xl bg-huarmey-red hover:bg-huarmey-redDark text-white font-bold text-sm">
+          Guardar y Probar
         </button>
       </div>
     </div>
   </div>
 
-  <!-- =====================================================================
-       PIE DE PÁGINA
-       ===================================================================== -->
-  <footer class="bg-white border-t border-stone-200 py-4 px-4 text-center text-xs text-huarmeyGray">
-    <p class="font-semibold text-stone-700">Agrícola Huarmey • Sistema Offline-First de Benchmarking en Campo</p>
-    <p class="mt-0.5">Sincronización concurrente con Google Sheets: <span class="font-medium">BENCHMARKING EMPRESAS</span></p>
-  </footer>
+  <!-- MODAL: CONFIRMATION DIALOG (REPLACES window.confirm) -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
+      <h3 id="confirmTitle" class="font-extrabold text-lg text-huarmey-dark">Confirmar acción</h3>
+      <p id="confirmMessage" class="text-sm text-gray-600">¿Estás seguro?</p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="confirmCancelBtn" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm">Cancelar</button>
+        <button id="confirmOkBtn" class="px-4 py-2 rounded-xl bg-huarmey-red hover:bg-huarmey-redDark text-white font-bold text-sm">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- =====================================================================
-       LÓGICA MODULAR DE LA APLICACIÓN (INDEXEDDB + SYNC + VALIDACIONES + PWA)
-       ===================================================================== -->
   <script>
     /**
-     * CONFIGURACIÓN POR DEFECTO Y CONSTANTES DEL SISTEMA
+     * ============================================================================
+     * CONFIGURACIÓN CENTRALIZADA DE LA APLICACIÓN (BENCHMARKING EMPRESAS)
+     * ============================================================================
      */
-    const APP_CONFIG_KEY = 'huarmey_benchmarking_config_v1';
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyv-bihnFycPmYCwPfeobn5has9mBkvUcUYwRqn__WKPR8aAH-powU01xVCWqRaYMIZcw/exec';
-    const DEFAULT_API_TOKEN = 'HUARMEY_BENCH_2026_SECRET';
-    const CATALOG_CACHE_KEY = 'huarmey_benchmarking_catalogs_v1';
-    const DB_NAME = 'HuarmeyBenchmarkingDB';
-// ... existing code ... -->
-    function getApiConfig() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(APP_CONFIG_KEY));
-        if (saved && typeof saved === 'object') {
-          return {
-            apiUrl: saved.apiUrl || DEFAULT_API_URL,
-            apiToken: saved.apiToken || DEFAULT_API_TOKEN,
-            userDevice: saved.userDevice || ''
-          };
-        }
-        return {
-          apiUrl: DEFAULT_API_URL,
-          apiToken: DEFAULT_API_TOKEN,
-          userDevice: ''
-        };
-      } catch {
-        return { apiUrl: DEFAULT_API_URL, apiToken: DEFAULT_API_TOKEN, userDevice: '' };
+    const APP_CONFIG = {
+      DB_NAME: 'BenchmarkingHuarmeyDB',
+      DB_VERSION: 1,
+      STORES: {
+        EMPRESAS: 'catalog_empresas',
+        VARIEDADES: 'catalog_variedades',
+        REGISTROS: 'registros'
+      },
+      // Dejar vacío para solicitar al usuario en la interfaz o pegar aquí la URL tras desplegar Codigo.gs
+      DEFAULT_SCRIPT_URL: '',
+      STORAGE_KEYS: {
+        SCRIPT_URL: 'huarmey_benchmarking_script_url',
+        API_KEY: 'huarmey_benchmarking_api_key'
+      },
+      MAX_RETRY_ATTEMPTS: 5
+    };
+
+    let dbInstance = null;
+    let isSyncing = false;
+    let cachedEmpresas = [];
+
+    /**
+     * ============================================================================
+     * INICIALIZACIÓN PWA (MANIFEST DINÁMICO + SERVICE WORKER OFFLINE)
+     * ============================================================================
+     */
+    function initPWA() {
+      // 1. Generar manifest.json dinámico si no se sirve como archivo externo
+      const manifestData = {
+        name: "BENCHMARKING EMPRESAS - Agrícola Huarmey",
+        short_name: "Benchmarking",
+        description: "Registro y comparación de competencias, metas y condiciones operativas en campo.",
+        start_url: "./",
+        display: "standalone",
+        background_color: "#F5F4F2",
+        theme_color: "#DA291C",
+        orientation: "portrait",
+        icons: [
+          {
+            src: "LOGO HUARMEY.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable"
+          },
+          {
+            src: "LOGO HUARMEY.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable"
+          }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+      const manifestUrl = URL.createObjectURL(manifestBlob);
+      const linkEl = document.createElement('link');
+      linkEl.rel = 'manifest';
+      linkEl.href = manifestUrl;
+      document.head.appendChild(linkEl);
+
+      // 2. Registrar Service Worker (intenta archivo externo sw.js y si no existe usa Blob)
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {
+          // Fallback silencioso en entornos de previsualización de archivo único
+        });
       }
     }
 
-    function ensureDeviceId() {
-      const cfg = getApiConfig();
-      if (!cfg.userDevice) {
-        cfg.userDevice = 'Evaluador-' + Math.floor(100 + Math.random() * 900);
-        localStorage.setItem(APP_CONFIG_KEY, JSON.stringify(cfg));
+    /**
+     * ============================================================================
+     * CAPA DE ALMACENAMIENTO LOCAL: INDEXEDDB
+     * ============================================================================
+     */
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        if (dbInstance) return resolve(dbInstance);
+
+        const request = indexedDB.open(APP_CONFIG.DB_NAME, APP_CONFIG.DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+
+          if (!db.objectStoreNames.contains(APP_CONFIG.STORES.EMPRESAS)) {
+            db.createObjectStore(APP_CONFIG.STORES.EMPRESAS, { keyPath: 'EMPRESA' });
+          }
+          if (!db.objectStoreNames.contains(APP_CONFIG.STORES.VARIEDADES)) {
+            db.createObjectStore(APP_CONFIG.STORES.VARIEDADES, { keyPath: 'VARIEDAD' });
+          }
+          if (!db.objectStoreNames.contains(APP_CONFIG.STORES.REGISTROS)) {
+            const regStore = db.createObjectStore(APP_CONFIG.STORES.REGISTROS, { keyPath: 'ID_REGISTRO' });
+            regStore.createIndex('ESTADO_SINCRONIZACION', 'ESTADO_SINCRONIZACION', { unique: false });
+            regStore.createIndex('FECHA_HORA_CREACION', 'FECHA_HORA_CREACION', { unique: false });
+          }
+        };
+
+        request.onsuccess = (event) => {
+          dbInstance = event.target.result;
+          resolve(dbInstance);
+        };
+
+        request.onerror = (event) => {
+          console.error('Error abriendo IndexedDB:', event.target.error);
+          reject(event.target.error);
+        };
+      });
+    }
+
+    async function idbGetAll(storeName) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbPut(storeName, item) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.put(item);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbReplaceStore(storeName, items) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        store.clear();
+        items.forEach(item => store.put(item));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    /**
+     * ============================================================================
+     * GESTIÓN DE CONECTIVIDAD Y UI DE ESTADO
+     * ============================================================================
+     */
+    function updateNetworkUI() {
+      const isOnline = navigator.onLine;
+      const banner = document.getElementById('networkBanner');
+      const dot = document.getElementById('networkDot');
+      const text = document.getElementById('networkText');
+
+      if (isOnline) {
+        banner.classList.remove('bg-huarmey-gray', 'bg-amber-600');
+        banner.classList.add('bg-huarmey-green');
+        dot.classList.remove('bg-amber-200');
+        dot.classList.add('bg-white');
+        text.textContent = 'CONECTADO (ONLINE)';
+      } else {
+        banner.classList.remove('bg-huarmey-green');
+        banner.classList.add('bg-huarmey-gray');
+        dot.classList.remove('bg-white');
+        dot.classList.add('bg-amber-300');
+        text.textContent = 'SIN CONEXIÓN (MODO OFFLINE ACTIVO)';
+      }
+    }
+
+    window.addEventListener('online', () => {
+      updateNetworkUI();
+      showToast('Conexión a internet recuperada. Verificando registros pendientes...', 'info');
+      syncCatalogsFromServer(false);
+      syncPendingRecords(false);
+    });
+
+    window.addEventListener('offline', () => {
+      updateNetworkUI();
+      showToast('Sin internet. Los registros se guardarán localmente en el dispositivo.', 'warning');
+    });
+
+    /**
+     * ============================================================================
+     * SINCRONIZACIÓN DE CATÁLOGOS (EMPRESAS Y VARIEDADES)
+     * ============================================================================
+     */
+    function getScriptUrl() {
+      return (localStorage.getItem(APP_CONFIG.STORAGE_KEYS.SCRIPT_URL) || APP_CONFIG.DEFAULT_SCRIPT_URL || '').trim();
+    }
+
+    function getApiKey() {
+      return (localStorage.getItem(APP_CONFIG.STORAGE_KEYS.API_KEY) || '').trim();
+    }
+
+    async function loadCatalogsFromLocal() {
+      try {
+        const [empresas, variedades] = await Promise.all([
+          idbGetAll(APP_CONFIG.STORES.EMPRESAS),
+          idbGetAll(APP_CONFIG.STORES.VARIEDADES)
+        ]);
+
+        cachedEmpresas = empresas;
+        populateEmpresaDropdown(empresas);
+        populateVariedadDropdown(variedades);
+
+        const hint = document.getElementById('catalogStatusHint');
+        if (empresas.length > 0) {
+          hint.textContent = `${empresas.length} empresas disponibles (almacenadas offline).`;
+          hint.className = 'text-xs text-huarmey-greenDark mt-1 font-medium';
+        } else {
+          hint.textContent = 'Sin datos locales. Configura la URL de Apps Script y presiona "Catálogos".';
+          hint.className = 'text-xs text-amber-700 mt-1 font-medium';
+        }
+      } catch (err) {
+        console.error('Error cargando catálogos locales:', err);
+      }
+    }
+
+    function populateEmpresaDropdown(empresas) {
+      const select = document.getElementById('empresaSelect');
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Seleccione una empresa --</option>';
+
+      empresas.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.EMPRESA;
+        opt.textContent = emp.EMPRESA;
+        select.appendChild(opt);
+      });
+
+      if (currentVal && empresas.some(e => e.EMPRESA === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    function populateVariedadDropdown(variedades) {
+      const select = document.getElementById('variedadSelect');
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Seleccione una variedad --</option>';
+
+      variedades.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.VARIEDAD;
+        opt.textContent = v.VARIEDAD;
+        select.appendChild(opt);
+      });
+
+      if (currentVal && variedades.some(v => v.VARIEDAD === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    async function syncCatalogsFromServer(manual = false) {
+      const scriptUrl = getScriptUrl();
+      if (!scriptUrl) {
+        if (manual) {
+          showToast('Configura primero la URL de Google Apps Script en el botón superior.', 'warning');
+          openConfigModal();
+        }
+        return;
+      }
+
+      if (!navigator.onLine) {
+        if (manual) showToast('Sin conexión. Usando catálogos guardados en el dispositivo.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btnRefreshCatalogs');
+      btn.disabled = true;
+      btn.classList.add('opacity-60');
+
+      try {
+        const url = new URL(scriptUrl);
+        url.searchParams.set('action', 'getCatalogs');
+        const apiKey = getApiKey();
+        if (apiKey) url.searchParams.set('apiKey', apiKey);
+
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          redirect: 'follow'
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+
+        if (result.status !== 'OK') {
+          throw new Error(result.message || 'Error al obtener catálogos del servidor');
+        }
+
+        const empresas = Array.isArray(result.data?.empresas) ? result.data.empresas : [];
+        const variedades = Array.isArray(result.data?.variedades) ? result.data.variedades : [];
+
+        await Promise.all([
+          idbReplaceStore(APP_CONFIG.STORES.EMPRESAS, empresas),
+          idbReplaceStore(APP_CONFIG.STORES.VARIEDADES, variedades)
+        ]);
+
+        await loadCatalogsFromLocal();
+        if (manual) {
+          showToast(`Catálogos actualizados: ${empresas.length} empresas y ${variedades.length} variedades.`, 'success');
+        }
+      } catch (error) {
+        console.error('Error sincronizando catálogos:', error);
+        if (manual) {
+          showToast(`No se pudieron descargar catálogos: ${error.message}`, 'error');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60');
+      }
+    }
+
+    /**
+     * ============================================================================
+     * VÍNCULO ESTRICTO: EMPRESA -> LOGO Y LUGAR
+     * ============================================================================
+     */
+    document.getElementById('empresaSelect').addEventListener('change', function () {
+      const selectedName = this.value;
+      const logoPreview = document.getElementById('empresaLogoPreview');
+      const logoPlaceholder = document.getElementById('empresaLogoPlaceholder');
+      const logoText = document.getElementById('empresaLogoText');
+      const logoInput = document.getElementById('logoValue');
+      const lugarInput = document.getElementById('lugarInput');
+
+      if (!selectedName) {
+        logoPreview.src = '';
+        logoPreview.classList.add('hidden');
+        logoPlaceholder.classList.remove('hidden');
+        logoText.textContent = 'Sin logo / Seleccione empresa';
+        logoInput.value = '';
+        lugarInput.value = '';
+        return;
+      }
+
+      const empresaObj = cachedEmpresas.find(e => e.EMPRESA === selectedName);
+      if (!empresaObj) return;
+
+      // Asignar LUGAR exacto de la misma fila
+      lugarInput.value = empresaObj.LUGAR || 'NO ESPECIFICADO';
+
+      // Asignar LOGO exacto de la misma fila
+      const rawLogo = (empresaObj.LOGO || '').trim();
+      logoInput.value = rawLogo;
+
+      if (rawLogo && (rawLogo.startsWith('http://') || rawLogo.startsWith('https://') || rawLogo.endsWith('.png') || rawLogo.endsWith('.jpg') || rawLogo.endsWith('.svg'))) {
+        logoPreview.src = rawLogo;
+        logoPreview.classList.remove('hidden');
+        logoPlaceholder.classList.add('hidden');
+      } else {
+        logoPreview.src = '';
+        logoPreview.classList.add('hidden');
+        logoPlaceholder.classList.remove('hidden');
+        logoText.textContent = rawLogo || 'Sin logotipo registrado';
+      }
+    });
+
+    /**
+     * ============================================================================
+     * VALIDACIÓN Y GUARDADO LOCAL EN INDEXEDDB
+     * ============================================================================
+     */
+    function generateUUID() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return 'REG-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    }
+
+    // Formateo automático a 2 decimales al salir del campo de moneda
+    document.querySelectorAll('.currency-input').forEach(input => {
+      input.addEventListener('blur', function () {
+        if (this.value !== '' && !isNaN(parseFloat(this.value))) {
+          const val = Math.max(0, parseFloat(this.value));
+          this.value = val.toFixed(2);
+        }
+      });
+    });
+
+    function validateFormData() {
+      const fechaReg = document.getElementById('fechaReg').value.trim();
+      const empresa = document.getElementById('empresaSelect').value.trim();
+      const logo = document.getElementById('logoValue').value.trim();
+      const lugar = document.getElementById('lugarInput').value.trim();
+      const variedad = document.getElementById('variedadSelect').value.trim();
+      const metaTareaRaw = document.getElementById('metaTarea').value.trim();
+      const tipoMeta = document.getElementById('tipoMeta').value.trim();
+      const hrsRaw = document.getElementById('hrsTrabajadas').value.trim();
+      const diasRaw = document.getElementById('diasTrabajados').value.trim();
+
+      const precioMetaRaw = document.getElementById('precioMeta').value.trim();
+      const precioAdicRaw = document.getElementById('precioAdicional').value.trim();
+      const bonoAsistRaw = document.getElementById('bonoAsistencia').value.trim();
+      const bonoCalidRaw = document.getElementById('bonoCalidad').value.trim();
+
+      if (!fechaReg) return { valid: false, error: 'Selecciona la FECHA REG. operativa.' };
+      if (!empresa) return { valid: false, error: 'Selecciona una EMPRESA del listado.' };
+
+      // Validar correspondencia estricta EMPRESA - LUGAR - LOGO
+      const empRef = cachedEmpresas.find(e => e.EMPRESA === empresa);
+      if (!empRef || empRef.LUGAR !== lugar) {
+        return { valid: false, error: 'Inconsistencia detectada entre Empresa y Lugar. Vuelve a seleccionar la empresa.' };
+      }
+
+      if (!variedad) return { valid: false, error: 'Selecciona una VARIEDAD.' };
+
+      const metaTarea = Number(metaTareaRaw);
+      if (!metaTareaRaw || !Number.isInteger(metaTarea) || metaTarea <= 0) {
+        return { valid: false, error: 'META O TAREA debe ser un número entero positivo mayor a 0.' };
+      }
+
+      const validTipos = ['Kilos', 'Jabas', 'Jarras', 'Potes'];
+      if (!validTipos.includes(tipoMeta)) {
+        return { valid: false, error: 'Selecciona un TIPO META válido (Kilos, Jabas, Jarras o Potes).' };
+      }
+
+      const hrsTrabajadas = Number(hrsRaw);
+      if (!hrsRaw || !Number.isInteger(hrsTrabajadas) || hrsTrabajadas <= 0 || hrsTrabajadas > 24) {
+        return { valid: false, error: 'HRS. TRABAJADAS debe ser un entero entre 1 y 24.' };
+      }
+
+      const diasTrabajados = Number(diasRaw);
+      if (!diasRaw || !Number.isInteger(diasTrabajados) || diasTrabajados <= 0 || diasTrabajados > 31) {
+        return { valid: false, error: 'DÍAS TRABAJADOS debe ser un entero entre 1 y 31.' };
+      }
+
+      const parseCurrency = (val) => (val === '' ? NaN : Number(parseFloat(val).toFixed(2)));
+      const precioPorMeta = parseCurrency(precioMetaRaw);
+      const precioAdicional = parseCurrency(precioAdicRaw);
+      const bonoAsistencia = parseCurrency(bonoAsistRaw);
+      const bonoCalidad = parseCurrency(bonoCalidRaw);
+
+      if (isNaN(precioPorMeta) || precioPorMeta < 0) return { valid: false, error: 'Ingresa un PRECIO POR META válido en S/.' };
+      if (isNaN(precioAdicional) || precioAdicional < 0) return { valid: false, error: 'Ingresa un PRECIO ADICIONAL válido en S/ (puede ser 0.00).' };
+      if (isNaN(bonoAsistencia) || bonoAsistencia < 0) return { valid: false, error: 'Ingresa un BONO ASISTENCIA válido en S/ (puede ser 0.00).' };
+      if (isNaN(bonoCalidad) || bonoCalidad < 0) return { valid: false, error: 'Ingresa un BONO CALIDAD válido en S/ (puede ser 0.00).' };
+
+      return {
+        valid: true,
+        record: {
+          ID_REGISTRO: generateUUID(),
+          FECHA_REG: fechaReg,
+          EMPRESA: empresa,
+          LOGO: logo,
+          LUGAR: lugar,
+          META_O_TAREA: metaTarea,
+          TIPO_META: tipoMeta,
+          VARIEDAD: variedad,
+          HRS_TRABAJADAS: hrsTrabajadas,
+          DIAS_TRABAJADOS: diasTrabajados,
+          PRECIO_POR_META: precioPorMeta,
+          PRECIO_ADICIONAL: precioAdicional,
+          BONO_ASISTENCIA: bonoAsistencia,
+          BONO_CALIDAD: bonoCalidad,
+          FECHA_HORA_CREACION: new Date().toISOString(),
+          ESTADO_SINCRONIZACION: 'PENDIENTE',
+          INTENTOS_SYNC: 0,
+          ULTIMO_ERROR: ''
+        }
+      };
+    }
+
+    document.getElementById('benchmarkForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnGuardar');
+      if (btn.disabled) return;
+
+      const validation = validateFormData();
+      if (!validation.valid) {
+        showToast(validation.error, 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('opacity-70');
+
+      try {
+        // 1. Guardar siempre primero en IndexedDB (garantiza cero pérdida de datos)
+        await idbPut(APP_CONFIG.STORES.REGISTROS, validation.record);
+        await refreshDashboardCounts();
+
+        showToast('Registro guardado localmente. Sincronizando...', 'success');
+        clearFormFields();
+
+        // 2. Intentar sincronizar inmediatamente si hay conexión
+        if (navigator.onLine) {
+          syncPendingRecords(false);
+        } else {
+          showToast('Modo Offline: El registro quedó en cola como PENDIENTE.', 'info');
+        }
+      } catch (err) {
+        console.error('Error guardando registro local:', err);
+        showToast('Error al guardar en el dispositivo: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+      }
+    });
+
+    function clearFormFields() {
+      const form = document.getElementById('benchmarkForm');
+      form.reset();
+      // Mantener fecha actual por comodidad operativa
+      document.getElementById('fechaReg').value = new Date().toISOString().split('T')[0];
+      document.getElementById('empresaSelect').dispatchEvent(new Event('change'));
+    }
+
+    function resetFormWithConfirmation() {
+      openConfirmModal(
+        'Limpiar formulario',
+        '¿Deseas borrar todos los datos ingresados en el formulario actual?',
+        () => {
+          clearFormFields();
+          showToast('Formulario limpiado.', 'info');
+        }
+      );
+    }
+
+    /**
+     * ============================================================================
+     * MOTOR DE SINCRONIZACIÓN CON GOOGLE APPS SCRIPT (ANTI-DUPLICADOS)
+     * ============================================================================
+     */
+    async function syncPendingRecords(manual = false) {
+      if (isSyncing) {
+        if (manual) showToast('Ya hay una sincronización en curso...', 'info');
+        return;
+      }
+
+      const scriptUrl = getScriptUrl();
+      if (!scriptUrl) {
+        if (manual) {
+          showToast('Falta configurar la URL de Google Apps Script.', 'warning');
+          openConfigModal();
+        }
+        return;
+      }
+
+      if (!navigator.onLine) {
+        if (manual) showToast('Sin conexión a internet. Conéctate para sincronizar.', 'warning');
+        return;
+      }
+
+      const allRecords = await idbGetAll(APP_CONFIG.STORES.REGISTROS);
+      const pendingRecords = allRecords.filter(r =>
+        r.ESTADO_SINCRONIZACION === 'PENDIENTE' ||
+        (r.ESTADO_SINCRONIZACION === 'ERROR' && (manual || (r.INTENTOS_SYNC || 0) < APP_CONFIG.MAX_RETRY_ATTEMPTS))
+      );
+
+      if (pendingRecords.length === 0) {
+        if (manual) showToast('Todos los registros ya están sincronizados.', 'success');
+        return;
+      }
+
+      isSyncing = true;
+      const syncIcon = document.getElementById('syncIcon');
+      const btnSync = document.getElementById('btnSyncNow');
+      syncIcon.classList.add('fa-spin');
+      btnSync.disabled = true;
+
+      let syncedCount = 0;
+      let errorCount = 0;
+
+      try {
+        // Enviar en lote o uno por uno asegurando confirmación explícita por ID_REGISTRO
+        const payload = {
+          action: 'saveRecordsBatch',
+          apiKey: getApiKey(),
+          records: pendingRecords
+        };
+
+        const response = await fetch(scriptUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8' // Evita preflight CORS complejo en Apps Script
+          },
+          body: JSON.stringify(payload),
+          redirect: 'follow'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error de red HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status !== 'OK' || !Array.isArray(result.results)) {
+          throw new Error(result.message || 'Respuesta inválida del servidor Apps Script');
+        }
+
+        // Procesar resultado individual de cada registro para actualizar IndexedDB
+        for (const itemRes of result.results) {
+          const localRec = pendingRecords.find(r => r.ID_REGISTRO === itemRes.ID_REGISTRO);
+          if (!localRec) continue;
+
+          if (itemRes.status === 'OK' || itemRes.status === 'DUPLICATE_IGNORED') {
+            localRec.ESTADO_SINCRONIZACION = 'SINCRONIZADO';
+            localRec.ULTIMO_ERROR = '';
+            syncedCount++;
+          } else {
+            localRec.ESTADO_SINCRONIZACION = 'ERROR';
+            localRec.INTENTOS_SYNC = (localRec.INTENTOS_SYNC || 0) + 1;
+            localRec.ULTIMO_ERROR = itemRes.message || 'Error de validación en servidor';
+            errorCount++;
+          }
+          await idbPut(APP_CONFIG.STORES.REGISTROS, localRec);
+        }
+
+        await refreshDashboardCounts();
+        renderRecordsList();
+
+        if (syncedCount > 0 && errorCount === 0) {
+          showToast(`¡Sincronización exitosa! ${syncedCount} registro(s) guardados en Google Sheets.`, 'success');
+        } else if (errorCount > 0) {
+          showToast(`Sincronizados: ${syncedCount}. Con error: ${errorCount}. Revisa el detalle en "Ver Registros".`, 'warning');
+        }
+      } catch (err) {
+        console.error('Error en sincronización:', err);
+        // Marcar intento fallido sin perder el registro
+        for (const rec of pendingRecords) {
+          rec.ESTADO_SINCRONIZACION = 'ERROR';
+          rec.INTENTOS_SYNC = (rec.INTENTOS_SYNC || 0) + 1;
+          rec.ULTIMO_ERROR = err.message || 'Fallo de conexión con el servidor';
+          await idbPut(APP_CONFIG.STORES.REGISTROS, rec);
+        }
+        await refreshDashboardCounts();
+        renderRecordsList();
+        if (manual) {
+          showToast(`Error de sincronización: ${err.message}`, 'error');
+        }
+      } finally {
+        isSyncing = false;
+        syncIcon.classList.remove('fa-spin');
+        btnSync.disabled = false;
+      }
+    }
+
+    /**
+     * ============================================================================
+     * VISUALIZACIÓN DE REGISTROS Y CONTADORES
+     * ============================================================================
+     */
+    async function refreshDashboardCounts() {
+      const records = await idbGetAll(APP_CONFIG.STORES.REGISTROS);
+      const pendientes = records.filter(r => r.ESTADO_SINCRONIZACION === 'PENDIENTE').length;
+      const sincronizados = records.filter(r => r.ESTADO_SINCRONIZACION === 'SINCRONIZADO').length;
+      const errores = records.filter(r => r.ESTADO_SINCRONIZACION === 'ERROR').length;
+
+      document.getElementById('countPendiente').textContent = pendientes;
+      document.getElementById('countSincronizado').textContent = sincronizados;
+      document.getElementById('countError').textContent = errores;
+      document.getElementById('badgeTotalList').textContent = records.length;
+    }
+
+    async function renderRecordsList() {
+      const records = await idbGetAll(APP_CONFIG.STORES.REGISTROS);
+      const filter = document.getElementById('filterStatus').value;
+      const container = document.getElementById('recordsContainer');
+      const emptyState = document.getElementById('emptyListState');
+
+      // Ordenar más recientes primero
+      records.sort((a, b) => new Date(b.FECHA_HORA_CREACION) - new Date(a.FECHA_HORA_CREACION));
+
+      const filtered = filter === 'ALL'
+        ? records
+        : records.filter(r => r.ESTADO_SINCRONIZACION === filter);
+
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      filtered.forEach(rec => {
+        let badgeHtml = '';
+        if (rec.ESTADO_SINCRONIZACION === 'SINCRONIZADO') {
+          badgeHtml = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-check-circle"></i> SINCRONIZADO</span>`;
+        } else if (rec.ESTADO_SINCRONIZACION === 'ERROR') {
+          badgeHtml = `<span class="bg-red-100 text-huarmey-red text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> ERROR</span>`;
+        } else {
+          badgeHtml = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-clock"></i> PENDIENTE</span>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'border border-gray-200 rounded-2xl p-4 bg-huarmey-grayLight/50 hover:bg-white transition space-y-2.5';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <div class="font-extrabold text-base text-huarmey-dark">${escapeHtml(rec.EMPRESA)}</div>
+              <div class="text-xs text-huarmey-gray font-medium">
+                <i class="fa-solid fa-location-dot text-huarmey-greenDark"></i> ${escapeHtml(rec.LUGAR)} &bull;
+                <i class="fa-regular fa-calendar"></i> ${escapeHtml(rec.FECHA_REG)}
+              </div>
+            </div>
+            ${badgeHtml}
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-white p-2.5 rounded-xl border border-gray-100">
+            <div>
+              <span class="text-gray-400 block">Variedad</span>
+              <span class="font-bold text-gray-800">${escapeHtml(rec.VARIEDAD)}</span>
+            </div>
+            <div>
+              <span class="text-gray-400 block">Meta / Tarea</span>
+              <span class="font-bold text-gray-800">${rec.META_O_TAREA} ${escapeHtml(rec.TIPO_META)}</span>
+            </div>
+            <div>
+              <span class="text-gray-400 block">Jornada</span>
+              <span class="font-bold text-gray-800">${rec.HRS_TRABAJADAS}h / ${rec.DIAS_TRABAJADOS}d</span>
+            </div>
+            <div>
+              <span class="text-gray-400 block">Precio Meta</span>
+              <span class="font-bold text-huarmey-greenDark">S/ ${Number(rec.PRECIO_POR_META).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500 pt-1">
+            <span>Bonos: Asist. S/ ${Number(rec.BONO_ASISTENCIA).toFixed(2)} | Calid. S/ ${Number(rec.BONO_CALIDAD).toFixed(2)} | Adic. S/ ${Number(rec.PRECIO_ADICIONAL).toFixed(2)}</span>
+            <span class="font-mono text-[10px]">ID: ${rec.ID_REGISTRO.slice(0, 8)}...</span>
+          </div>
+
+          ${rec.ULTIMO_ERROR ? `<div class="text-xs text-huarmey-red bg-red-50 border border-red-200 rounded-lg p-2 font-medium"><i class="fa-solid fa-circle-info mr-1"></i> ${escapeHtml(rec.ULTIMO_ERROR)}</div>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /**
+     * ============================================================================
+     * NAVEGACIÓN DE PESTAÑAS, MODALES Y NOTIFICACIONES
+     * ============================================================================
+     */
+    function switchTab(tab) {
+      const formView = document.getElementById('viewForm');
+      const listView = document.getElementById('viewList');
+      const formBtn = document.getElementById('tabFormBtn');
+      const listBtn = document.getElementById('tabListBtn');
+
+      if (tab === 'form') {
+        formView.classList.remove('hidden');
+        listView.classList.add('hidden');
+        formBtn.classList.add('tab-active');
+        formBtn.classList.remove('text-huarmey-gray');
+        listBtn.classList.remove('tab-active');
+        listBtn.classList.add('text-huarmey-gray');
+      } else {
+        formView.classList.add('hidden');
+        listView.classList.remove('hidden');
+        listBtn.classList.add('tab-active');
+        listBtn.classList.remove('text-huarmey-gray');
+        formBtn.classList.remove('tab-active');
+        formBtn.classList.add('text-huarmey-gray');
+        renderRecordsList();
       }
     }
 
     function openConfigModal() {
-      const cfg = getApiConfig();
-      document.getElementById('cfg-api-url').value = cfg.apiUrl || DEFAULT_API_URL;
-      document.getElementById('cfg-api-token').value = cfg.apiToken || DEFAULT_API_TOKEN;
-      document.getElementById('cfg-user-device').value = cfg.userDevice || '';
-      document.getElementById('config-modal').classList.remove('hidden');
+      document.getElementById('scriptUrlInput').value = getScriptUrl();
+      document.getElementById('apiKeyInput').value = getApiKey();
+      document.getElementById('configModal').classList.remove('hidden');
     }
 
     function closeConfigModal() {
-      document.getElementById('config-modal').classList.add('hidden');
+      document.getElementById('configModal').classList.add('hidden');
     }
 
-    function saveApiConfig() {
-      const apiUrl = document.getElementById('cfg-api-url').value.trim() || DEFAULT_API_URL;
-      const apiToken = document.getElementById('cfg-api-token').value.trim() || DEFAULT_API_TOKEN;
-      const userDevice = document.getElementById('cfg-user-device').value.trim() || 'Evaluador-Campo';
-// ... existing code ... -->
+    async function saveApiConfig() {
+      const url = document.getElementById('scriptUrlInput').value.trim();
+      const key = document.getElementById('apiKeyInput').value.trim();
+
+      if (url && !url.startsWith('https://script.google.com/')) {
+        showToast('La URL debe comenzar con https://script.google.com/', 'error');
+        return;
+      }
+
+      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.SCRIPT_URL, url);
+      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.API_KEY, key);
+      closeConfigModal();
+      showToast('Configuración guardada. Descargando catálogos...', 'success');
+      await syncCatalogsFromServer(true);
+      await syncPendingRecords(false);
+    }
+
+    function openConfirmModal(title, message, onConfirm) {
+      const modal = document.getElementById('confirmModal');
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      modal.classList.remove('hidden');
+
+      const okBtn = document.getElementById('confirmOkBtn');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+
+      const cleanup = () => {
+        modal.classList.add('hidden');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+      };
+
+      okBtn.onclick = () => {
+        cleanup();
+        onConfirm();
+      };
+      cancelBtn.onclick = cleanup;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+
+      const styles = {
+        success: 'bg-huarmey-greenDark text-white border-emerald-700',
+        error: 'bg-huarmey-red text-white border-red-800',
+        warning: 'bg-amber-600 text-white border-amber-800',
+        info: 'bg-huarmey-dark text-white border-gray-800'
+      };
+
+      const icons = {
+        success: 'fa-circle-check',
+        error: 'fa-circle-exclamation',
+        warning: 'fa-triangle-exclamation',
+        info: 'fa-circle-info'
+      };
+
+      toast.className = `${styles[type] || styles.info} pointer-events-auto border rounded-2xl px-4 py-3 shadow-lg flex items-start gap-3 text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0`;
+      toast.innerHTML = `
+        <i class="fa-solid ${icons[type] || icons.info} mt-0.5 text-base"></i>
+        <div class="flex-1">${escapeHtml(message)}</div>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4200);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * ============================================================================
+     * ARRANQUE DE LA APLICACIÓN
+     * ============================================================================
+     */
+    window.addEventListener('DOMContentLoaded', async () => {
+      initPWA();
+      updateNetworkUI();
+
+      // Fecha por defecto: hoy
+      document.getElementById('fechaReg').value = new Date().toISOString().split('T')[0];
+
+      await openDatabase();
+      await loadCatalogsFromLocal();
+      await refreshDashboardCounts();
+
+      // Si hay internet y URL configurada, actualizar catálogos y sincronizar pendientes en segundo plano
+      if (navigator.onLine && getScriptUrl()) {
+        syncCatalogsFromServer(false);
+        syncPendingRecords(false);
+      }
+    });
+  </script>
+</body>
+</html>
