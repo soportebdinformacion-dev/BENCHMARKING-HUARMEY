@@ -1,22 +1,26 @@
 /**
- * Service Worker - BENCHMARKING EMPRESAS (Agrícola Huarmey)
- * Estrategia Offline-First para operación completa en campo sin cobertura móvil.
+ * ============================================================================
+ * SERVICE WORKER - BENCHMARKING EMPRESAS (AGRÍCOLA HUARMEY)
+ * Estrategia: Cache-First para recursos estáticos esenciales y Network-First
+ * para llamadas dinámicas a Google Apps Script.
+ * ============================================================================
  */
-const CACHE_NAME = 'huarmey-benchmarking-pwa-v1';
-const CORE_ASSETS = [
+
+const CACHE_NAME = 'huarmey-benchmarking-v1.0.0';
+const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './LOGO HUARMEY.png'
 ];
 
-// Instalación: precachear recursos base de la aplicación
+// Instalación: cachear el shell de la aplicación para uso offline inmediato
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return Promise.allSettled(
-        CORE_ASSETS.map((url) => cache.add(url).catch(() => null))
-      );
+      return cache.addAll(STATIC_ASSETS).catch((err) => {
+        console.warn('Algunos recursos opcionales no se pudieron pre-cachear:', err);
+      });
     })
   );
   self.skipWaiting();
@@ -25,48 +29,52 @@ self.addEventListener('install', (event) => {
 // Activación: limpiar versiones antiguas de caché
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    )
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
   );
   self.clients.claim();
 });
 
-// Intercepción de peticiones:
-// - Las llamadas a Google Apps Script (script.google.com) van directo a red (los datos se gestionan en IndexedDB).
-// - Los recursos estáticos/UI usan Cache-First con actualización en segundo plano.
+// Intercepción de peticiones
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+  const requestUrl = new URL(event.request.url);
 
-  // No cachear peticiones de sincronización hacia Google Apps Script
-  if (url.hostname.includes('script.google.com') || url.hostname.includes('script.googleusercontent.com')) {
+  // Nunca cachear peticiones POST ni llamadas hacia Google Apps Script
+  if (
+    event.request.method !== 'GET' ||
+    requestUrl.hostname.includes('script.google.com') ||
+    requestUrl.hostname.includes('script.googleusercontent.com')
+  ) {
     return;
   }
 
-  if (request.method !== 'GET') {
-    return;
-  }
-
+  // Estrategia Cache-First con actualización en segundo plano (Stale-While-Revalidate)
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      const networkFetch = fetch(request)
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const responseClone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
+              cache.put(event.request, responseClone);
             });
           }
           return networkResponse;
         })
-        .catch(() => cachedResponse);
+        .catch(() => {
+          // Si falla la red y es navegación HTML, devolver index.html cacheado
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+          return cachedResponse;
+        });
 
-      return cachedResponse || networkFetch;
+      return cachedResponse || fetchPromise;
     })
   );
 });
