@@ -269,10 +269,10 @@
               <label for="hrsTrabajadas" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-regular fa-clock text-huarmey-gray mr-1"></i> HRS. TRABAJADAS <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="hrsTrabajadas" name="hrsTrabajadas" inputmode="numeric" min="1" max="24" step="1" required
-                placeholder="Ej. 8"
+              <input type="number" id="hrsTrabajadas" name="hrsTrabajadas" inputmode="decimal" min="0.01" max="24" step="0.01" required
+                placeholder="Ej. 8.5"
                 class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
-              <p class="text-xs text-huarmey-gray mt-1">Horas enteras positivas (1 a 24).</p>
+              <p class="text-xs text-huarmey-gray mt-1">Horas positivas con decimales (mayor a 0 y hasta 24).</p>
             </div>
 
             <div>
@@ -892,9 +892,9 @@
         return { valid: false, error: 'Selecciona un TIPO META válido (Kilos, Jabas, Jarras o Potes).' };
       }
 
-      const hrsTrabajadas = Number(hrsRaw);
-      if (!hrsRaw || !Number.isInteger(hrsTrabajadas) || hrsTrabajadas <= 0 || hrsTrabajadas > 24) {
-        return { valid: false, error: 'HRS. TRABAJADAS debe ser un entero entre 1 y 24.' };
+      const hrsTrabajadas = hrsRaw === '' ? NaN : Number(parseFloat(hrsRaw).toFixed(2));
+      if (isNaN(hrsTrabajadas) || hrsTrabajadas <= 0 || hrsTrabajadas > 24) {
+        return { valid: false, error: 'HRS. TRABAJADAS debe ser un número mayor a 0 y hasta 24.' };
       }
 
       const diasTrabajados = Number(diasRaw);
