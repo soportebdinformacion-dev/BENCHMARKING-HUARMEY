@@ -245,10 +245,10 @@
               <label for="metaTarea" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-bullseye text-huarmey-red mr-1"></i> META O TAREA <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="metaTarea" name="metaTarea" inputmode="numeric" min="1" step="1" required
-                placeholder="Ej. 120"
+              <input type="number" id="metaTarea" name="metaTarea" inputmode="decimal" min="0.01" step="0.01" required
+                placeholder="Ej. 120.5"
                 class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
-              <p class="text-xs text-huarmey-gray mt-1">Solo números enteros positivos.</p>
+              <p class="text-xs text-huarmey-gray mt-1">Números positivos con decimales (mayor a 0).</p>
             </div>
 
             <div>
@@ -279,10 +279,10 @@
               <label for="diasTrabajados" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-calendar-days text-huarmey-gray mr-1"></i> DÍAS TRABAJADOS <span class="text-huarmey-red">*</span>
               </label>
-              <input type="number" id="diasTrabajados" name="diasTrabajados" inputmode="numeric" min="1" max="31" step="1" required
-                placeholder="Ej. 6"
+              <input type="number" id="diasTrabajados" name="diasTrabajados" inputmode="decimal" min="0.01" max="31" step="0.01" required
+                placeholder="Ej. 6.5"
                 class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white" />
-              <p class="text-xs text-huarmey-gray mt-1">Días enteros positivos (1 a 31).</p>
+              <p class="text-xs text-huarmey-gray mt-1">Días positivos con decimales (mayor a 0 y hasta 31).</p>
             </div>
           </div>
         </div>
@@ -453,7 +453,7 @@
         VARIEDADES: 'catalog_variedades',
         REGISTROS: 'registros'
       },
-      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz5LdX3V7gTX3CmCAo1C_CkNCCH-kcX9jPWuqQUuAoudrOQ173a8Z0O2hpDHw1KiYIAcw/exec',
+      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxXPKG5UqnJAsL1gsWNwrDtXgmHF2YwwpEPpbX4PAqDJVwr69YnkzqwRzl8z-5p4JcvRQ/exec',
       STORAGE_KEYS: {
         SCRIPT_URL: 'huarmey_benchmarking_script_url',
         API_KEY: 'huarmey_benchmarking_api_key'
@@ -882,9 +882,9 @@
 
       if (!variedad) return { valid: false, error: 'Selecciona una VARIEDAD.' };
 
-      const metaTarea = Number(metaTareaRaw);
-      if (!metaTareaRaw || !Number.isInteger(metaTarea) || metaTarea <= 0) {
-        return { valid: false, error: 'META O TAREA debe ser un número entero positivo mayor a 0.' };
+      const metaTarea = metaTareaRaw === '' ? NaN : Number(parseFloat(metaTareaRaw).toFixed(2));
+      if (isNaN(metaTarea) || metaTarea <= 0) {
+        return { valid: false, error: 'META O TAREA debe ser un número positivo mayor a 0.' };
       }
 
       const validTipos = ['Kilos', 'Jabas', 'Jarras', 'Potes'];
@@ -897,9 +897,9 @@
         return { valid: false, error: 'HRS. TRABAJADAS debe ser un número mayor a 0 y hasta 24.' };
       }
 
-      const diasTrabajados = Number(diasRaw);
-      if (!diasRaw || !Number.isInteger(diasTrabajados) || diasTrabajados <= 0 || diasTrabajados > 31) {
-        return { valid: false, error: 'DÍAS TRABAJADOS debe ser un entero entre 1 y 31.' };
+      const diasTrabajados = diasRaw === '' ? NaN : Number(parseFloat(diasRaw).toFixed(2));
+      if (isNaN(diasTrabajados) || diasTrabajados <= 0 || diasTrabajados > 31) {
+        return { valid: false, error: 'DÍAS TRABAJADOS debe ser un número mayor a 0 y hasta 31.' };
       }
 
       const parseCurrency = (val) => (val === '' ? NaN : Number(parseFloat(val).toFixed(2)));
