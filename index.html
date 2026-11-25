@@ -48,7 +48,6 @@
       color: #2B2825;
       -webkit-tap-highlight-color: transparent;
     }
-    /* Custom scrollbar for smooth mobile feel */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -83,7 +82,6 @@
   <!-- INSTITUTIONAL HEADER -->
   <header class="bg-white border-b border-gray-200 shadow-sm pt-4 pb-5 px-4">
     <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
-      <!-- Membrete Agrícola Huarmey: Usa LOGO HUARMEY.png si está en la misma carpeta, con fallback SVG vectorial institucional idéntico -->
       <div class="mb-3 flex justify-center items-center">
         <img 
           id="headerLogo" 
@@ -92,22 +90,17 @@
           class="h-20 sm:h-24 w-auto object-contain"
           onerror="this.style.display='none'; document.getElementById('fallbackLogoSvg').style.display='flex';"
         />
-        <!-- Fallback fiel al logotipo de Agrícola Huarmey si el archivo local aún no se ha copiado junto al HTML -->
         <div id="fallbackLogoSvg" style="display:none;" class="flex-col items-center">
           <svg width="150" height="86" viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Agrícola Huarmey">
-            <!-- Hoja verde superior -->
             <path d="M112 36C112 18 128 8 144 8C144 24 130 36 112 36Z" fill="#2E8B19"/>
             <path d="M114 34C122 24 131 17 141 11" stroke="#78BE20" stroke-width="2" stroke-linecap="round"/>
-            <!-- Arcos verdes izquierdos (globo/fruto) -->
             <path d="M98 34C74 42 62 66 68 92C72 106 82 116 95 121" stroke="#2E8B19" stroke-width="5.5" stroke-linecap="round"/>
             <path d="M84 26C62 42 54 70 64 96C70 110 80 118 92 122" stroke="#4CA626" stroke-width="4.5" stroke-linecap="round"/>
             <path d="M68 48C56 64 56 88 70 105" stroke="#2E8B19" stroke-width="4.5" stroke-linecap="round"/>
-            <!-- Franjas rojas curvas del fruto -->
             <path d="M96 42C112 52 134 50 146 38C144 54 124 62 102 54C96 51 94 46 96 42Z" fill="#DA291C"/>
             <path d="M86 60C108 72 138 68 152 54C150 74 122 84 94 74C86 71 83 65 86 60Z" fill="#DA291C"/>
             <path d="M88 80C110 92 138 88 150 75C146 94 120 104 94 94C87 91 85 85 88 80Z" fill="#DA291C"/>
             <path d="M96 100C114 108 134 105 143 96C138 110 118 116 100 109C95 107 94 103 96 100Z" fill="#DA291C"/>
-            <!-- Texto institucional -->
             <text x="110" y="127" text-anchor="middle" fill="#635B54" font-family="Inter, sans-serif" font-weight="700" font-size="21" letter-spacing="-0.5">Agrícola Huarmey</text>
           </svg>
         </div>
@@ -183,7 +176,6 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- FECHA REG. -->
             <div>
               <label for="fechaReg" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-regular fa-calendar text-huarmey-red mr-1"></i> FECHA REG. <span class="text-huarmey-red">*</span>
@@ -193,7 +185,6 @@
               <p class="text-xs text-huarmey-gray mt-1">Fecha operativa a la que corresponde el dato.</p>
             </div>
 
-            <!-- EMPRESA -->
             <div>
               <label for="empresaSelect" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-building text-huarmey-red mr-1"></i> EMPRESA <span class="text-huarmey-red">*</span>
@@ -208,19 +199,16 @@
 
           <!-- ASSOCIATED LOGO & LUGAR CARD -->
           <div class="bg-huarmey-grayLight rounded-2xl p-4 border border-gray-200 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <!-- LOGO -->
-            <div class="sm:col-span-4 flex flex-col items-center justify-center bg-white rounded-xl p-3 border border-gray-200 min-h-[96px]">
+            <div class="sm:col-span-4 flex flex-col items-center justify-center bg-white rounded-xl p-3 border border-gray-200 min-h-[104px]">
               <span class="text-[11px] font-bold uppercase text-huarmey-gray mb-1">LOGO ASOCIADO</span>
-              <img id="empresaLogoPreview" src="" alt="Logo Empresa" class="max-h-14 w-auto object-contain hidden"
-                onerror="this.classList.add('hidden'); document.getElementById('empresaLogoPlaceholder').classList.remove('hidden');" />
-              <div id="empresaLogoPlaceholder" class="text-center text-gray-400 text-xs flex flex-col items-center">
+              <img id="empresaLogoPreview" src="" alt="Logo Empresa" class="max-h-16 w-auto object-contain hidden" />
+              <div id="empresaLogoPlaceholder" class="text-center text-gray-400 text-xs flex flex-col items-center px-1">
                 <i class="fa-regular fa-image text-2xl mb-1"></i>
-                <span id="empresaLogoText">Sin logo / Seleccione empresa</span>
+                <span id="empresaLogoText" class="leading-tight">Sin logo / Seleccione empresa</span>
               </div>
               <input type="hidden" id="logoValue" name="logoValue" />
             </div>
 
-            <!-- LUGAR -->
             <div class="sm:col-span-8">
               <label for="lugarInput" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-location-dot text-huarmey-greenDark mr-1"></i> LUGAR (Automático según Empresa) <span class="text-huarmey-red">*</span>
@@ -243,7 +231,6 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- VARIEDAD -->
             <div class="sm:col-span-2">
               <label for="variedadSelect" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-seedling text-huarmey-greenDark mr-1"></i> VARIEDAD <span class="text-huarmey-red">*</span>
@@ -254,7 +241,6 @@
               </select>
             </div>
 
-            <!-- META O TAREA -->
             <div>
               <label for="metaTarea" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-bullseye text-huarmey-red mr-1"></i> META O TAREA <span class="text-huarmey-red">*</span>
@@ -265,7 +251,6 @@
               <p class="text-xs text-huarmey-gray mt-1">Solo números enteros positivos.</p>
             </div>
 
-            <!-- TIPO META -->
             <div>
               <label for="tipoMeta" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-boxes-stacked text-huarmey-red mr-1"></i> TIPO META <span class="text-huarmey-red">*</span>
@@ -280,7 +265,6 @@
               </select>
             </div>
 
-            <!-- HRS. TRABAJADAS -->
             <div>
               <label for="hrsTrabajadas" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-regular fa-clock text-huarmey-gray mr-1"></i> HRS. TRABAJADAS <span class="text-huarmey-red">*</span>
@@ -291,7 +275,6 @@
               <p class="text-xs text-huarmey-gray mt-1">Horas enteras positivas (1 a 24).</p>
             </div>
 
-            <!-- DÍAS TRABAJADOS -->
             <div>
               <label for="diasTrabajados" class="block text-sm font-bold text-gray-700 mb-1">
                 <i class="fa-solid fa-calendar-days text-huarmey-gray mr-1"></i> DÍAS TRABAJADOS <span class="text-huarmey-red">*</span>
@@ -312,7 +295,6 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- PRECIO POR META -->
             <div>
               <label for="precioMeta" class="block text-sm font-bold text-gray-700 mb-1">
                 PRECIO POR META <span class="text-huarmey-red">*</span>
@@ -325,7 +307,6 @@
               </div>
             </div>
 
-            <!-- PRECIO ADICIONAL -->
             <div>
               <label for="precioAdicional" class="block text-sm font-bold text-gray-700 mb-1">
                 PRECIO ADICIONAL <span class="text-huarmey-red">*</span>
@@ -338,7 +319,6 @@
               </div>
             </div>
 
-            <!-- BONO ASISTENCIA -->
             <div>
               <label for="bonoAsistencia" class="block text-sm font-bold text-gray-700 mb-1">
                 BONO ASISTENCIA <span class="text-huarmey-red">*</span>
@@ -351,7 +331,6 @@
               </div>
             </div>
 
-            <!-- BONO CALIDAD -->
             <div>
               <label for="bonoCalidad" class="block text-sm font-bold text-gray-700 mb-1">
                 BONO CALIDAD <span class="text-huarmey-red">*</span>
@@ -398,23 +377,21 @@
         </div>
       </div>
 
-      <!-- Empty state -->
       <div id="emptyListState" class="text-center py-10 text-huarmey-gray hidden">
         <i class="fa-regular fa-folder-open text-4xl mb-2 opacity-50"></i>
         <p class="font-semibold">No hay registros almacenados en este dispositivo.</p>
         <p class="text-xs mt-1">Completa el formulario en la pestaña "Nuevo Registro".</p>
       </div>
 
-      <!-- Cards container -->
       <div id="recordsContainer" class="space-y-3"></div>
     </div>
 
   </main>
 
-  <!-- TOAST NOTIFICATION CONTAINER (NO alert() USED) -->
+  <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- MODAL: CONFIGURATION (APPS SCRIPT URL) -->
+  <!-- MODAL: CONFIGURATION -->
   <div id="configModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -455,7 +432,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMATION DIALOG (REPLACES window.confirm) -->
+  <!-- MODAL: CONFIRMATION DIALOG -->
   <div id="confirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
       <h3 id="confirmTitle" class="font-extrabold text-lg text-huarmey-dark">Confirmar acción</h3>
@@ -468,11 +445,6 @@
   </div>
 
   <script>
-    /**
-     * ============================================================================
-     * CONFIGURACIÓN CENTRALIZADA DE LA APLICACIÓN (BENCHMARKING EMPRESAS)
-     * ============================================================================
-     */
     const APP_CONFIG = {
       DB_NAME: 'BenchmarkingHuarmeyDB',
       DB_VERSION: 1,
@@ -481,7 +453,6 @@
         VARIEDADES: 'catalog_variedades',
         REGISTROS: 'registros'
       },
-      // URL del Web App de Google Apps Script vinculada por defecto
       DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz3IbotLi-lpDApD2ODl17Oxuhe2oX3n9SRhSSwgWbnsgmgBKnUk4niCH_ucq_xr8A_3w/exec',
       STORAGE_KEYS: {
         SCRIPT_URL: 'huarmey_benchmarking_script_url',
@@ -494,13 +465,7 @@
     let isSyncing = false;
     let cachedEmpresas = [];
 
-    /**
-     * ============================================================================
-     * INICIALIZACIÓN PWA (MANIFEST DINÁMICO + SERVICE WORKER OFFLINE)
-     * ============================================================================
-     */
     function initPWA() {
-      // 1. Generar manifest.json dinámico si no se sirve como archivo externo
       const manifestData = {
         name: "BENCHMARKING EMPRESAS - Agrícola Huarmey",
         short_name: "Benchmarking",
@@ -511,18 +476,8 @@
         theme_color: "#DA291C",
         orientation: "portrait",
         icons: [
-          {
-            src: "LOGO HUARMEY.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any maskable"
-          },
-          {
-            src: "LOGO HUARMEY.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable"
-          }
+          { src: "LOGO HUARMEY.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+          { src: "LOGO HUARMEY.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
         ]
       };
       const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
@@ -532,19 +487,11 @@
       linkEl.href = manifestUrl;
       document.head.appendChild(linkEl);
 
-      // 2. Registrar Service Worker (intenta archivo externo sw.js y si no existe usa Blob)
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-        navigator.serviceWorker.register('./service-worker.js').catch(() => {
-          // Fallback silencioso en entornos de previsualización de archivo único
-        });
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
       }
     }
 
-    /**
-     * ============================================================================
-     * CAPA DE ALMACENAMIENTO LOCAL: INDEXEDDB
-     * ============================================================================
-     */
     function openDatabase() {
       return new Promise((resolve, reject) => {
         if (dbInstance) return resolve(dbInstance);
@@ -553,7 +500,6 @@
 
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
-
           if (!db.objectStoreNames.contains(APP_CONFIG.STORES.EMPRESAS)) {
             db.createObjectStore(APP_CONFIG.STORES.EMPRESAS, { keyPath: 'EMPRESA' });
           }
@@ -613,11 +559,6 @@
       });
     }
 
-    /**
-     * ============================================================================
-     * GESTIÓN DE CONECTIVIDAD Y UI DE ESTADO
-     * ============================================================================
-     */
     function updateNetworkUI() {
       const isOnline = navigator.onLine;
       const banner = document.getElementById('networkBanner');
@@ -651,11 +592,6 @@
       showToast('Sin internet. Los registros se guardarán localmente en el dispositivo.', 'warning');
     });
 
-    /**
-     * ============================================================================
-     * SINCRONIZACIÓN DE CATÁLOGOS (EMPRESAS Y VARIEDADES)
-     * ============================================================================
-     */
     function getScriptUrl() {
       return (localStorage.getItem(APP_CONFIG.STORAGE_KEYS.SCRIPT_URL) || APP_CONFIG.DEFAULT_SCRIPT_URL || '').trim();
     }
@@ -702,6 +638,7 @@
 
       if (currentVal && empresas.some(e => e.EMPRESA === currentVal)) {
         select.value = currentVal;
+        select.dispatchEvent(new Event('change'));
       }
     }
 
@@ -783,9 +720,42 @@
     }
 
     /**
-     * ============================================================================
+     * Convierte enlaces de Google Drive a URL directa de imagen si aplica.
+     */
+    function normalizeLogoSrc(rawLogo) {
+      const val = (rawLogo || '').trim();
+      if (!val || val === 'CELL_IMAGE_NO_URL' || val === 'CellImage') return '';
+
+      // Soporta data:image/...
+      if (val.startsWith('data:image/')) return val;
+
+      // Soporta enlaces de Google Drive (/file/d/ID/view o ?id=ID)
+      const driveFileMatch = val.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (driveFileMatch && driveFileMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
+      }
+      const driveIdMatch = val.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (val.includes('drive.google.com') && driveIdMatch && driveIdMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${driveIdMatch[1]}`;
+      }
+
+      // Soporta URLs http/https o rutas relativas/locales
+      if (
+        val.startsWith('http://') ||
+        val.startsWith('https://') ||
+        val.startsWith('./') ||
+        val.startsWith('../') ||
+        val.startsWith('/') ||
+        /\.(png|jpe?g|gif|webp|svg|avif)(\?.*)?$/i.test(val)
+      ) {
+        return val;
+      }
+
+      return '';
+    }
+
+    /**
      * VÍNCULO ESTRICTO: EMPRESA -> LOGO Y LUGAR
-     * ============================================================================
      */
     document.getElementById('empresaSelect').addEventListener('change', function () {
       const selectedName = this.value;
@@ -794,6 +764,10 @@
       const logoText = document.getElementById('empresaLogoText');
       const logoInput = document.getElementById('logoValue');
       const lugarInput = document.getElementById('lugarInput');
+
+      // Resetear onload/onerror previos
+      logoPreview.onload = null;
+      logoPreview.onerror = null;
 
       if (!selectedName) {
         logoPreview.src = '';
@@ -808,17 +782,31 @@
       const empresaObj = cachedEmpresas.find(e => e.EMPRESA === selectedName);
       if (!empresaObj) return;
 
-      // Asignar LUGAR exacto de la misma fila
       lugarInput.value = empresaObj.LUGAR || 'NO ESPECIFICADO';
 
-      // Asignar LOGO exacto de la misma fila
       const rawLogo = (empresaObj.LOGO || '').trim();
-      logoInput.value = rawLogo;
+      logoInput.value = rawLogo === 'CELL_IMAGE_NO_URL' ? '' : rawLogo;
 
-      if (rawLogo && (rawLogo.startsWith('http://') || rawLogo.startsWith('https://') || rawLogo.endsWith('.png') || rawLogo.endsWith('.jpg') || rawLogo.endsWith('.svg'))) {
-        logoPreview.src = rawLogo;
-        logoPreview.classList.remove('hidden');
-        logoPlaceholder.classList.add('hidden');
+      if (rawLogo === 'CELL_IMAGE_NO_URL' || rawLogo === 'CellImage') {
+        logoPreview.src = '';
+        logoPreview.classList.add('hidden');
+        logoPlaceholder.classList.remove('hidden');
+        logoText.textContent = 'Usa URL o =IMAGE("URL") en hoja empresas';
+        return;
+      }
+
+      const imgSrc = normalizeLogoSrc(rawLogo);
+      if (imgSrc) {
+        logoPreview.onload = () => {
+          logoPreview.classList.remove('hidden');
+          logoPlaceholder.classList.add('hidden');
+        };
+        logoPreview.onerror = () => {
+          logoPreview.classList.add('hidden');
+          logoPlaceholder.classList.remove('hidden');
+          logoText.textContent = 'No cargó la imagen (revisa URL)';
+        };
+        logoPreview.src = imgSrc;
       } else {
         logoPreview.src = '';
         logoPreview.classList.add('hidden');
@@ -827,11 +815,6 @@
       }
     });
 
-    /**
-     * ============================================================================
-     * VALIDACIÓN Y GUARDADO LOCAL EN INDEXEDDB
-     * ============================================================================
-     */
     function generateUUID() {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
         return crypto.randomUUID();
@@ -839,7 +822,6 @@
       return 'REG-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     }
 
-    // Formateo automático a 2 decimales al salir del campo de moneda
     document.querySelectorAll('.currency-input').forEach(input => {
       input.addEventListener('blur', function () {
         if (this.value !== '' && !isNaN(parseFloat(this.value))) {
@@ -868,7 +850,6 @@
       if (!fechaReg) return { valid: false, error: 'Selecciona la FECHA REG. operativa.' };
       if (!empresa) return { valid: false, error: 'Selecciona una EMPRESA del listado.' };
 
-      // Validar correspondencia estricta EMPRESA - LUGAR - LOGO
       const empRef = cachedEmpresas.find(e => e.EMPRESA === empresa);
       if (!empRef || empRef.LUGAR !== lugar) {
         return { valid: false, error: 'Inconsistencia detectada entre Empresa y Lugar. Vuelve a seleccionar la empresa.' };
@@ -947,14 +928,12 @@
       btn.classList.add('opacity-70');
 
       try {
-        // 1. Guardar siempre primero en IndexedDB (garantiza cero pérdida de datos)
         await idbPut(APP_CONFIG.STORES.REGISTROS, validation.record);
         await refreshDashboardCounts();
 
         showToast('Registro guardado localmente. Sincronizando...', 'success');
         clearFormFields();
 
-        // 2. Intentar sincronizar inmediatamente si hay conexión
         if (navigator.onLine) {
           syncPendingRecords(false);
         } else {
@@ -972,7 +951,6 @@
     function clearFormFields() {
       const form = document.getElementById('benchmarkForm');
       form.reset();
-      // Mantener fecha actual por comodidad operativa
       document.getElementById('fechaReg').value = new Date().toISOString().split('T')[0];
       document.getElementById('empresaSelect').dispatchEvent(new Event('change'));
     }
@@ -988,11 +966,6 @@
       );
     }
 
-    /**
-     * ============================================================================
-     * MOTOR DE SINCRONIZACIÓN CON GOOGLE APPS SCRIPT (ANTI-DUPLICADOS)
-     * ============================================================================
-     */
     async function syncPendingRecords(manual = false) {
       if (isSyncing) {
         if (manual) showToast('Ya hay una sincronización en curso...', 'info');
@@ -1034,7 +1007,6 @@
       let errorCount = 0;
 
       try {
-        // Enviar en lote o uno por uno asegurando confirmación explícita por ID_REGISTRO
         const payload = {
           action: 'saveRecordsBatch',
           apiKey: getApiKey(),
@@ -1044,7 +1016,7 @@
         const response = await fetch(scriptUrl, {
           method: 'POST',
           headers: {
-            'Content-Type': 'text/plain;charset=utf-8' // Evita preflight CORS complejo en Apps Script
+            'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(payload),
           redirect: 'follow'
@@ -1060,7 +1032,6 @@
           throw new Error(result.message || 'Respuesta inválida del servidor Apps Script');
         }
 
-        // Procesar resultado individual de cada registro para actualizar IndexedDB
         for (const itemRes of result.results) {
           const localRec = pendingRecords.find(r => r.ID_REGISTRO === itemRes.ID_REGISTRO);
           if (!localRec) continue;
@@ -1088,7 +1059,6 @@
         }
       } catch (err) {
         console.error('Error en sincronización:', err);
-        // Marcar intento fallido sin perder el registro
         for (const rec of pendingRecords) {
           rec.ESTADO_SINCRONIZACION = 'ERROR';
           rec.INTENTOS_SYNC = (rec.INTENTOS_SYNC || 0) + 1;
@@ -1107,11 +1077,6 @@
       }
     }
 
-    /**
-     * ============================================================================
-     * VISUALIZACIÓN DE REGISTROS Y CONTADORES
-     * ============================================================================
-     */
     async function refreshDashboardCounts() {
       const records = await idbGetAll(APP_CONFIG.STORES.REGISTROS);
       const pendientes = records.filter(r => r.ESTADO_SINCRONIZACION === 'PENDIENTE').length;
@@ -1130,7 +1095,6 @@
       const container = document.getElementById('recordsContainer');
       const emptyState = document.getElementById('emptyListState');
 
-      // Ordenar más recientes primero
       records.sort((a, b) => new Date(b.FECHA_HORA_CREACION) - new Date(a.FECHA_HORA_CREACION));
 
       const filtered = filter === 'ALL'
@@ -1199,11 +1163,6 @@
       });
     }
 
-    /**
-     * ============================================================================
-     * NAVEGACIÓN DE PESTAÑAS, MODALES Y NOTIFICACIONES
-     * ============================================================================
-     */
     function switchTab(tab) {
       const formView = document.getElementById('viewForm');
       const listView = document.getElementById('viewList');
@@ -1322,23 +1281,15 @@
         .replace(/'/g, '&#039;');
     }
 
-    /**
-     * ============================================================================
-     * ARRANQUE DE LA APLICACIÓN
-     * ============================================================================
-     */
     window.addEventListener('DOMContentLoaded', async () => {
       initPWA();
       updateNetworkUI();
-
-      // Fecha por defecto: hoy
       document.getElementById('fechaReg').value = new Date().toISOString().split('T')[0];
 
       await openDatabase();
       await loadCatalogsFromLocal();
       await refreshDashboardCounts();
 
-      // Si hay internet y URL configurada, actualizar catálogos y sincronizar pendientes en segundo plano
       if (navigator.onLine && getScriptUrl()) {
         syncCatalogsFromServer(false);
         syncPendingRecords(false);
