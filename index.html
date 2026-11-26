@@ -471,7 +471,7 @@
         VARIEDADES: 'catalog_variedades',
         REGISTROS: 'registros'
       },
-      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw3otx3k3lSVWWXO6yf7KKNOO3GmhlGiYnQOAIcofHzDDw0fvw356NiHOKe9HGLVvrEYw/execc',
+      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxsSVhx9jIhwPKmTFdHvRDOGkVRfVGAALGiiDQFzUq4FkfO-CQqdAlKu1EiBDgXefa9-w/exec',
       STORAGE_KEYS: {
         SCRIPT_URL: 'huarmey_benchmarking_script_url',
         API_KEY: 'huarmey_benchmarking_api_key'
@@ -704,6 +704,9 @@
 
         const response = await fetch(url.toString(), {
           method: 'GET',
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
           redirect: 'follow'
         });
 
@@ -1054,27 +1057,61 @@
       let syncedCount = 0;
       let errorCount = 0;
 
+      const cleanRecordsPayload = pendingRecords.map(r => ({
+        ID_REGISTRO: r.ID_REGISTRO,
+        FECHA_REG: r.FECHA_REG,
+        EMPRESA: r.EMPRESA,
+        LOGO: (r.LOGO && !String(r.LOGO).startsWith('data:image/')) ? r.LOGO : '',
+        LUGAR: r.LUGAR,
+        META_O_TAREA: r.META_O_TAREA,
+        TIPO_META: r.TIPO_META,
+        VARIEDAD: r.VARIEDAD,
+        HRS_TRABAJADAS: r.HRS_TRABAJADAS,
+        DIAS_TRABAJADOS: r.DIAS_TRABAJADOS,
+        PRECIO_POR_META: r.PRECIO_POR_META,
+        PRECIO_ADICIONAL: r.PRECIO_ADICIONAL,
+        BONO_ASISTENCIA: r.BONO_ASISTENCIA,
+        BONO_CALIDAD: r.BONO_CALIDAD,
+        COMENTARIO: r.COMENTARIO || '',
+        FECHA_HORA_CREACION: r.FECHA_HORA_CREACION
+      }));
+
       try {
         const payload = {
           action: 'saveRecordsBatch',
           apiKey: getApiKey(),
-          records: pendingRecords
+          records: cleanRecordsPayload
         };
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         const response = await fetch(scriptUrl, {
           method: 'POST',
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
           headers: {
             'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(payload),
-          redirect: 'follow'
+          redirect: 'follow',
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`Error de red HTTP ${response.status}`);
         }
 
-        const result = await response.json();
+        const rawText = await response.text();
+        let result;
+        try {
+          result = JSON.parse(rawText);
+        } catch (parseErr) {
+          throw new Error('La respuesta de Apps Script no es JSON válido. Verifica que el Web App esté implementado como "Cualquier persona".');
+        }
 
         if (result.status !== 'OK' || !Array.isArray(result.results)) {
           throw new Error(result.message || 'Respuesta inválida del servidor Apps Script');
@@ -1107,16 +1144,22 @@
         }
       } catch (err) {
         console.error('Error en sincronización:', err);
+        const friendlyMsg = (err.name === 'AbortError')
+          ? 'Tiempo de espera agotado (30s) al conectar con Google Apps Script.'
+          : (err.message === 'Failed to fetch'
+              ? 'No se pudo conectar con Apps Script (Failed to fetch). Verifica la URL de implementación o acceso público ("Cualquier persona").'
+              : (err.message || 'Fallo de conexión con el servidor'));
+
         for (const rec of pendingRecords) {
           rec.ESTADO_SINCRONIZACION = 'ERROR';
           rec.INTENTOS_SYNC = (rec.INTENTOS_SYNC || 0) + 1;
-          rec.ULTIMO_ERROR = err.message || 'Fallo de conexión con el servidor';
+          rec.ULTIMO_ERROR = friendlyMsg;
           await idbPut(APP_CONFIG.STORES.REGISTROS, rec);
         }
         await refreshDashboardCounts();
         renderRecordsList();
         if (manual) {
-          showToast(`Error de sincronización: ${err.message}`, 'error');
+          showToast(`Error de sincronización: ${friendlyMsg}`, 'error');
         }
       } finally {
         isSyncing = false;
