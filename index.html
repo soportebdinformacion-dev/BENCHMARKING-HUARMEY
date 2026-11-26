@@ -345,6 +345,24 @@
           </div>
         </div>
 
+        <!-- SECTION 4: COMENTARIO ADICIONAL -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+            <span class="w-7 h-7 rounded-lg bg-gray-100 text-huarmey-dark flex items-center justify-center text-sm font-bold">4</span>
+            <h2 class="font-bold text-base sm:text-lg text-huarmey-dark">COMENTARIO...</h2>
+          </div>
+
+          <div>
+            <label for="comentarioInput" class="block text-sm font-bold text-gray-700 mb-1">
+              <i class="fa-regular fa-comment-dots text-huarmey-red mr-1"></i> OBSERVACIÓN O COMENTARIO <span class="text-xs font-normal text-huarmey-gray">(Opcional)</span>
+            </label>
+            <textarea id="comentarioInput" name="comentarioInput" rows="3" maxlength="500"
+              placeholder="Ingrese observaciones o detalles adicionales (texto alfanumérico)..."
+              class="w-full rounded-xl border border-gray-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-huarmey-red bg-white resize-y"></textarea>
+            <p class="text-xs text-huarmey-gray mt-1">Texto alfanumérico (máximo 500 caracteres).</p>
+          </div>
+        </div>
+
         <!-- FORM ACTIONS -->
         <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
           <button type="submit" id="btnGuardar" class="flex-1 bg-huarmey-red hover:bg-huarmey-redDark text-white font-bold text-base py-4 px-6 rounded-2xl shadow-md transition flex items-center justify-center gap-2.5 active:scale-[0.99]">
@@ -453,7 +471,7 @@
         VARIEDADES: 'catalog_variedades',
         REGISTROS: 'registros'
       },
-      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxXPKG5UqnJAsL1gsWNwrDtXgmHF2YwwpEPpbX4PAqDJVwr69YnkzqwRzl8z-5p4JcvRQ/exec',
+      DEFAULT_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw3otx3k3lSVWWXO6yf7KKNOO3GmhlGiYnQOAIcofHzDDw0fvw356NiHOKe9HGLVvrEYw/execc',
       STORAGE_KEYS: {
         SCRIPT_URL: 'huarmey_benchmarking_script_url',
         API_KEY: 'huarmey_benchmarking_api_key'
@@ -871,6 +889,7 @@
       const precioAdicRaw = document.getElementById('precioAdicional').value.trim();
       const bonoAsistRaw = document.getElementById('bonoAsistencia').value.trim();
       const bonoCalidRaw = document.getElementById('bonoCalidad').value.trim();
+      const comentario = document.getElementById('comentarioInput').value.trim();
 
       if (!fechaReg) return { valid: false, error: 'Selecciona la FECHA REG. operativa.' };
       if (!empresa) return { valid: false, error: 'Selecciona una EMPRESA del listado.' };
@@ -912,6 +931,9 @@
       if (isNaN(precioAdicional) || precioAdicional < 0) return { valid: false, error: 'Ingresa un PRECIO ADICIONAL válido en S/ (puede ser 0.00).' };
       if (isNaN(bonoAsistencia) || bonoAsistencia < 0) return { valid: false, error: 'Ingresa un BONO ASISTENCIA válido en S/ (puede ser 0.00).' };
       if (isNaN(bonoCalidad) || bonoCalidad < 0) return { valid: false, error: 'Ingresa un BONO CALIDAD válido en S/ (puede ser 0.00).' };
+      if (comentario !== '' && !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,;:()\-\/]+$/.test(comentario)) {
+        return { valid: false, error: 'El COMENTARIO solo admite caracteres alfanuméricos y puntuación básica.' };
+      }
 
       return {
         valid: true,
@@ -930,6 +952,7 @@
           PRECIO_ADICIONAL: precioAdicional,
           BONO_ASISTENCIA: bonoAsistencia,
           BONO_CALIDAD: bonoCalidad,
+          COMENTARIO: comentario,
           FECHA_HORA_CREACION: new Date().toISOString(),
           ESTADO_SINCRONIZACION: 'PENDIENTE',
           INTENTOS_SYNC: 0,
@@ -1188,6 +1211,8 @@
             <span>Bonos: Asist. S/ ${Number(rec.BONO_ASISTENCIA).toFixed(2)} | Calid. S/ ${Number(rec.BONO_CALIDAD).toFixed(2)} | Adic. S/ ${Number(rec.PRECIO_ADICIONAL).toFixed(2)}</span>
             <span class="font-mono text-[10px]">ID: ${rec.ID_REGISTRO.slice(0, 8)}...</span>
           </div>
+
+          ${rec.COMENTARIO ? `<div class="text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2"><i class="fa-regular fa-comment-dots text-huarmey-gray mr-1"></i> ${escapeHtml(rec.COMENTARIO)}</div>` : ''}
 
           ${rec.ULTIMO_ERROR ? `<div class="text-xs text-huarmey-red bg-red-50 border border-red-200 rounded-lg p-2 font-medium"><i class="fa-solid fa-circle-info mr-1"></i> ${escapeHtml(rec.ULTIMO_ERROR)}</div>` : ''}
         `;
